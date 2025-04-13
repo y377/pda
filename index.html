@@ -5,7 +5,7 @@
   <title>扫码录入 SN / PN</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- ✅ 你要求的四个依赖 -->
+  <!-- ✅ 四大依赖 -->
   <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
   <link crossorigin="anonymous" href="https://lib.baomitu.com/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/monokai.css" rel="stylesheet">
@@ -51,6 +51,7 @@
     const storageKey = 'scan_data'
     let currentTarget = null
 
+    // 点击输入框设置当前扫码目标
     pnInput.addEventListener('click', () => {
       currentTarget = pnInput
       alert('请扫码填写 PN')
@@ -60,6 +61,7 @@
       alert('请扫码填写 SN')
     })
 
+    // 显示和保存逻辑
     function updateDisplay() {
       const data = JSON.parse(localStorage.getItem(storageKey) || '{}')
       pnInput.value = data.pn || ''
@@ -99,6 +101,7 @@
 
     updateDisplay()
 
+    // 启动扫码器
     const scanner = new Html5Qrcode("reader")
 
     Html5Qrcode.getCameras().then(devices => {
@@ -108,12 +111,19 @@
         return
       }
 
-      const cameraId = devices[0].id
+      // ✅ 优先使用后置摄像头（匹配 back/rear/environment）
+      const backCamera = devices.find(device =>
+        /back|rear|environment/i.test(device.label)
+      )
+
+      const selectedCameraId = backCamera ? backCamera.id : devices[0].id
+      const cameraLabel = backCamera ? backCamera.label : devices[0].label || '默认摄像头'
+
       cameraStatus.className = 'alert alert-success'
-      cameraStatus.innerHTML = `已检测到摄像头：<strong>${devices[0].label || '默认摄像头'}</strong>，等待扫码中...`
+      cameraStatus.innerHTML = `已启动摄像头：<strong>${cameraLabel}</strong>，请点击输入框后扫码...`
 
       scanner.start(
-        cameraId,
+        selectedCameraId,
         { fps: 10, qrbox: 250 },
         (decodedText) => {
           if (!currentTarget) {
@@ -127,7 +137,7 @@
           currentTarget = null
         },
         (err) => {
-          // 每帧扫码失败可忽略
+          // 每帧扫码失败（可忽略）
         }
       ).catch(err => {
         cameraStatus.className = 'alert alert-danger'
