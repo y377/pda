@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>扫码录入 SN / PN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ✅ 你要求的四个依赖 -->
+  <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+  <link crossorigin="anonymous" href="https://lib.baomitu.com/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/monokai.css" rel="stylesheet">
+  <script crossorigin="anonymous" src="https://lib.baomitu.com/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body class="container py-4">
+
+  <h3 class="mb-4">扫码录入设备信息</h3>
+
+  <div class="form-group mb-3">
+    <label for="pn">PN（产品号）</label>
+    <input id="pn" type="text" class="form-control" placeholder="点击后扫码填入" readonly>
+  </div>
+
+  <div class="form-group mb-3">
+    <label for="sn">SN（序列号）</label>
+    <input id="sn" type="text" class="form-control" placeholder="点击后扫码填入" readonly>
+  </div>
+
+  <div id="cameraStatus" class="alert alert-info">正在检测摄像头设备...</div>
+  <div id="reader" style="width: 100%; max-width: 400px;" class="border rounded p-2 mb-4"></div>
+
+  <div>
+    <pre id="outputText" class="bg-light p-3 rounded">请扫码录入 SN 和 PN</pre>
+    <button id="copyBtn" class="btn btn-success">
+      <i class="bi bi-clipboard"></i> 复制文本
+    </button>
+    <button id="resetBtn" class="btn btn-secondary ms-2">
+      <i class="bi bi-arrow-repeat"></i> 重置
+    </button>
+  </div>
+
+  <script>
+    const pnInput = document.getElementById('pn')
+    const snInput = document.getElementById('sn')
+    const outputText = document.getElementById('outputText')
+    const copyBtn = document.getElementById('copyBtn')
+    const resetBtn = document.getElementById('resetBtn')
+    const cameraStatus = document.getElementById('cameraStatus')
+
+    const storageKey = 'scan_data'
+    let currentTarget = null
+
+    pnInput.addEventListener('click', () => {
+      currentTarget = pnInput
+      alert('请扫码填写 PN')
+    })
+    snInput.addEventListener('click', () => {
+      currentTarget = snInput
+      alert('请扫码填写 SN')
+    })
+
+    function updateDisplay() {
+      const data = JSON.parse(localStorage.getItem(storageKey) || '{}')
+      pnInput.value = data.pn || ''
+      snInput.value = data.sn || ''
+      if (data.sn || data.pn) {
+        outputText.textContent = `内存SN：${data.sn || ''}\n内存PN：${data.pn || ''}`
+      } else {
+        outputText.textContent = '请扫码录入 SN 和 PN'
+      }
+    }
+
+    function saveValueToLocal(key, value) {
+      const data = JSON.parse(localStorage.getItem(storageKey) || '{}')
+      data[key] = value
+      localStorage.setItem(storageKey, JSON.stringify(data))
+      updateDisplay()
+    }
+
+    copyBtn.addEventListener('click', () => {
+      const text = outputText.textContent.trim()
+      if (!text || text === '请扫码录入 SN 和 PN') {
+        alert('暂无可复制内容')
+        return
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        alert('已复制到剪贴板！')
+      }).catch(() => {
+        alert('复制失败，请手动复制')
+      })
+    })
+
+    resetBtn.addEventListener('click', () => {
+      localStorage.removeItem(storageKey)
+      currentTarget = null
+      updateDisplay()
+    })
+
+    updateDisplay()
+
+    const scanner = new Html5Qrcode("reader")
+
+    Html5Qrcode.getCameras().then(devices => {
+      if (devices.length === 0) {
+        cameraStatus.className = 'alert alert-danger'
+        cameraStatus.textContent = '未检测到摄像头设备，请检查权限或浏览器支持'
+        return
+      }
+
+      const cameraId = devices[0].id
+      cameraStatus.className = 'alert alert-success'
+      cameraStatus.innerHTML = `已检测到摄像头：<strong>${devices[0].label || '默认摄像头'}</strong>，等待扫码中...`
+
+      scanner.start(
+        cameraId,
+        { fps: 10, qrbox: 250 },
+        (decodedText) => {
+          if (!currentTarget) {
+            alert('请先点击一个输入框再扫码')
+            return
+          }
+
+          currentTarget.value = decodedText
+          const key = currentTarget.id === 'pn' ? 'pn' : 'sn'
+          saveValueToLocal(key, decodedText)
+          currentTarget = null
+        },
+        (err) => {
+          // 每帧扫码失败可忽略
+        }
+      ).catch(err => {
+        cameraStatus.className = 'alert alert-danger'
+        cameraStatus.textContent = '摄像头启动失败：' + (err?.message || JSON.stringify(err))
+        console.error("摄像头启动失败：", err)
+      })
+    }).catch(err => {
+      cameraStatus.className = 'alert alert-danger'
+      cameraStatus.textContent = '获取摄像头设备失败：' + (err?.message || JSON.stringify(err))
+      console.error("获取摄像头设备失败：", err)
+    })
+  </script>
+
+</body>
+</html>
