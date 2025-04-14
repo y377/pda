@@ -11,11 +11,6 @@
     <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/monokai.css" rel="stylesheet">
     <script crossorigin="anonymous" src="https://lib.baomitu.com/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
     <script crossorigin="anonymous" src="https://lib.baomitu.com/highlight.js/11.10.0/highlight.min.js"></script>
-    <style>
-        input[data-scan-only] {
-      caret-color: transparent; /* 隐藏光标 */
-    }
-  </style>
 </head>
 
 <body class="container py-3">
@@ -25,15 +20,26 @@
         <label for="type" class="form-label fw-bold">请选择配件类型</label>
         <select id="type" class="form-select">
             <option value="CPU">CPU</option>
-            <option value="内存" selected>内存</option>
+            <option value="内存">内存</option>
             <option value="硬盘">硬盘</option>
             <option value="光模块">光模块</option>
-            <option value="AOC">AOC线缆</option>
-            <option value="AOC">主板</option>
-            <option value="AOC">电源</option>
-            <option value="AOC">网卡</option>
-            <option value="AOC">交换机</option>
+            <option value="AOC线缆">AOC线缆</option>
+            <option value="主板">主板</option>
+            <option value="电源">电源</option>
+            <option value="网卡">网卡</option>
+            <option value="交换机">交换机</option>
         </select>
+    </div>
+    <!-- 品牌选择（AOC线缆或内存时显示） -->
+    <div id="brandSection" class="row mb-3 d-none">
+        <div class="col">
+            <label class="form-label text-danger fw-bold">新件品牌</label>
+            <select id="newBrand" class="form-select"></select>
+        </div>
+        <div class="col">
+            <label class="form-label text-warning-emphasis fw-bold">旧件品牌</label>
+            <select id="oldBrand" class="form-select"></select>
+        </div>
     </div>
     <div class="form-group mb-3">
         <label for="newPN" class="form-label d-flex justify-content-between">
@@ -49,127 +55,143 @@
     </div>
     <div class="form-group mb-3">
         <label for="oldPN" class="form-label d-flex justify-content-between">
-            <span class="text-info fw-bold">旧件PN</span><small id="countOldPN" class="text-muted">字符数：0</small>
+            <span class="text-warning-emphasis fw-bold">旧件PN</span><small id="countOldPN" class="text-muted">字符数：0</small>
         </label>
         <input id="oldPN" type="text" class="form-control" placeholder="请扫码" data-scan-only>
     </div>
     <div class="form-group mb-3">
         <label for="oldSN" class="form-label d-flex justify-content-between">
-            <span class="text-info fw-bold">旧件SN</span><small id="countOldSN" class="text-muted">字符数：0</small>
+            <span class="text-warning-emphasis fw-bold">旧件SN</span><small id="countOldSN" class="text-muted">字符数：0</small>
         </label>
         <input id="oldSN" type="text" class="form-control" placeholder="请扫码" data-scan-only>
     </div>
     <div class="d-flex justify-content-between align-items-center mb-1">
         <label class="form-label fw-bold mb-0">预览内容：</label>
-        <button id="copyBtn" class="btn btn-primary">
+        <button id="copyBtn" class="btn btn-outline-success">
             <i class="bi bi-clipboard px-1"></i>复制
         </button>
     </div>
     <pre><code id="preview" class="hljs bash">请开始输入信息</code></pre>
-    <script>
-    const typeSelect = document.getElementById('type')
-    const newPN = document.getElementById('newPN')
-    const newSN = document.getElementById('newSN')
-    const oldPN = document.getElementById('oldPN')
-    const oldSN = document.getElementById('oldSN')
+    <script type="text/javascript">
+    const brandMap = {
+        'AOC线缆': ['INNOLIGHT', 'WTD', 'Hisense', 'HG GENUINE'],
+        '内存': ['Samsung', 'Hynix', 'Micron'],
+        '硬盘': ['Seagate', 'Western Digital', 'Intel', 'Samsung', 'Micron', 'KIOXIA', 'Solidigm'],
+        '光模块': ['WTD', 'Finisar', 'HGTECH', 'INNO LIGHT', 'Hisense', 'HUAWEI'],
+        'CPU': ['Intel']
+    };
 
-    const countNewPN = document.getElementById('countNewPN')
-    const countNewSN = document.getElementById('countNewSN')
-    const countOldPN = document.getElementById('countOldPN')
-    const countOldSN = document.getElementById('countOldSN')
+    const typeSelect = document.getElementById('type');
+    const brandSection = document.getElementById('brandSection');
+    const newBrand = document.getElementById('newBrand');
+    const oldBrand = document.getElementById('oldBrand');
 
-    const preview = document.getElementById('preview')
-    const copyBtn = document.getElementById('copyBtn')
+    const newPN = document.getElementById('newPN');
+    const newSN = document.getElementById('newSN');
+    const oldPN = document.getElementById('oldPN');
+    const oldSN = document.getElementById('oldSN');
 
-    let currentTarget = null
-    const inputs = [newPN, newSN, oldPN, oldSN]
+    const countNewPN = document.getElementById('countNewPN');
+    const countNewSN = document.getElementById('countNewSN');
+    const countOldPN = document.getElementById('countOldPN');
+    const countOldSN = document.getElementById('countOldSN');
+
+    const preview = document.getElementById('preview');
+    const copyBtn = document.getElementById('copyBtn');
+
+    let currentTarget = null;
+    const inputs = [newPN, newSN, oldPN, oldSN];
 
     inputs.forEach(input => {
         input.addEventListener('click', () => {
-            currentTarget = input
-        })
-    })
+            currentTarget = input;
+        });
+    });
 
-
-
-    function handleScanInput(text) {
-        if (currentTarget) {
-            currentTarget.value = text
-            update()
-            showToast(`扫码内容已填入：${currentTarget.previousElementSibling.textContent}`)
-            currentTarget = null
+    function updateBrandOptionsByType(type) {
+        const brands = brandMap[type];
+        if (brands) {
+            const options = brands.map(b => `<option value="${b}" ${b === 'Intel' ? 'selected' : ''}>${b}</option>`).join('');
+            newBrand.innerHTML = options;
+            oldBrand.innerHTML = options;
+            brandSection.classList.remove('d-none');
         } else {
-            showToast('请先点击输入框再扫码', 'warning')
+            brandSection.classList.add('d-none');
+            newBrand.innerHTML = '';
+            oldBrand.innerHTML = '';
         }
     }
 
+    typeSelect.addEventListener('change', () => {
+        updateBrandOptionsByType(typeSelect.value);
+        update(); // 同步更新预览
+    });
+
     function showToast(message, type = 'success') {
-        const toastContainer = document.getElementById('toastContainer')
-        const toast = document.createElement('div')
-        toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`
-        toast.role = 'alert'
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+        toast.role = 'alert';
         toast.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body">${message}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-      `
-        toastContainer.appendChild(toast)
-        setTimeout(() => toast.remove(), 2000)
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
     }
 
     function update() {
-        const type = typeSelect.value
-        const pn1 = newPN.value.trim()
-        const sn1 = newSN.value.trim()
-        const pn2 = oldPN.value.trim()
-        const sn2 = oldSN.value.trim()
+        const type = typeSelect.value;
+        const pn1 = newPN.value.trim();
+        const sn1 = newSN.value.trim();
+        const pn2 = oldPN.value.trim();
+        const sn2 = oldSN.value.trim();
+        const brand1 = newBrand.value || '';
+        const brand2 = oldBrand.value || '';
 
-        countNewPN.textContent = `字符数：${pn1.length}`
-        countNewSN.textContent = `字符数：${sn1.length}`
-        countOldPN.textContent = `字符数：${pn2.length}`
-        countOldSN.textContent = `字符数：${sn2.length}`
+        countNewPN.textContent = `字符数：${pn1.length}`;
+        countNewSN.textContent = `字符数：${sn1.length}`;
+        countOldPN.textContent = `字符数：${pn2.length}`;
+        countOldSN.textContent = `字符数：${sn2.length}`;
 
-        const text =
-            `「${type}」
-新件PN：${pn1}
-新件SN：${sn1}
-旧件PN：${pn2}
-旧件SN：${sn2}`
+        const text = `上新下旧：更换「${type}」\n单号：\n位置：\n新件品牌：${brand1}\n新件PN：${pn1}\n新件SN：${sn1}\n旧件品牌：${brand2}\n旧件PN：${pn2}\n旧件SN：${sn2}`;
 
-        preview.textContent = text
-        hljs.highlightElement(preview)
+        preview.textContent = text;
+        hljs.highlightElement(preview);
     }
 
-    [typeSelect, newPN, newSN, oldPN, oldSN].forEach(el => {
-        el.addEventListener('input', update)
-    })
+    [typeSelect, newPN, newSN, oldPN, oldSN, newBrand, oldBrand].forEach(el => {
+        el.addEventListener('input', update);
+    });
 
     copyBtn.addEventListener('click', () => {
-        const text = preview.innerText.trim()
+        const text = preview.innerText.trim();
         if (!text || text.includes('请开始输入')) {
-            showToast('请先输入完整内容', 'warning')
-            return
+            showToast('请先输入完整内容', 'warning');
+            return;
         }
-
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(text).then(() => {
-                showToast('已复制到剪贴板')
+                showToast('已复制到剪贴板');
             }).catch(() => {
-                showToast('复制失败，请手动复制', 'danger')
-            })
+                showToast('复制失败，请手动复制', 'danger');
+            });
         } else {
-            const tempInput = document.createElement('textarea')
-            tempInput.value = text
-            document.body.appendChild(tempInput)
-            tempInput.select()
-            document.execCommand('copy')
-            document.body.removeChild(tempInput)
-            showToast('已复制到剪贴板（兼容模式）')
+            const tempInput = document.createElement('textarea');
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast('已复制到剪贴板（兼容模式）');
         }
-    })
+    });
 
-    update()
+    // ✅ 页面加载时初始化品牌下拉框 & 预览
+    updateBrandOptionsByType(typeSelect.value);
+    update();
     </script>
 </body>
 
