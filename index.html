@@ -13,23 +13,22 @@
     <script crossorigin="anonymous" src="https://lib.baomitu.com/highlight.js/11.10.0/highlight.min.js"></script>
 </head>
 
-<body class="container py-3">
-    <p class="text-center">配件扫码录入</p>
-    <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x py-2" style="z-index: 9999;"></div>
+<body class="container mb-5">
+    <p class="text-center pt-2"><i class="bi bi-qr-code-scan px-1"></i>配件扫码录入</p>
+    <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"></div>
     <!-- 单号 + 配件类型 -->
-    <div class="row mb-3">
+    <div class="row my-3">
         <div class="col">
-            <label class="form-label fw-bold" for="orderNo">单号</label>
+            <label class="form-label fw-bold" for="orderNo">单号：</label>
            <input id="orderNo" type="text" class="form-control" placeholder="请输入单号"
        onpaste="setTimeout(() => {
          const val = this.value.match(/(\d+)(?!.*\d)/);
          this.value = val ? val[0] : '';
-       }, 0)"
+       }, 0)" 
        oninput="this.value = this.value.replace(/\D/g, '')">
-
         </div>
-        <div class="col">
-            <label class="form-label fw-bold" for="type">配件类型</label>
+        <div class="col text-end">
+            <label class="form-label fw-bold" for="type">配件类型：</label>
             <select id="type" class="form-select">
                 <option value="CPU">CPU</option>
                 <option value="内存">内存</option>
@@ -44,63 +43,62 @@
         </div>
     </div>
     <!-- 光模块时：交换机位置 + 端口号 -->
-    <div id="switchInfoRow" class="row mb-3 d-none">
+    <div id="switchInfoRow" class="row my-3 d-none">
         <div class="col-8 pe-1">
-            <label class="form-label" for="switchLocation">交换机位置</label>
-            <input id="switchLocation" type="text" class="form-control" placeholder="如B1_403-A-18-08">
+            <label class="form-label" for="switchLocation">交换机位置：</label>
+            <input id="switchLocation" type="text" class="form-control" placeholder="">
         </div>
-        <div class="col-4 ps-1">
-            <label class="form-label" for="portNo">端口</label>
-            <input id="portNo" type="text" class="form-control" placeholder="如ethernet48a">
+        <div class="col-4 ps-1 text-end">
+            <label class="form-label" for="portNo">端口：</label>
+            <input id="portNo" type="text" class="form-control" placeholder="">
         </div>
     </div>
     <!-- 非光模块时：服务器SN -->
-    <div id="serverSNRow" class="mb-3">
-        <label class="form-label fw-bold" for="serverSN">服务器SN</label>
-        <input id="serverSN" type="text" class="form-control" placeholder="请扫码或输入">
+    <div id="serverSNRow" class="my-3">
+        <label class="form-label font-monospace" for="serverSN"><i class="bi bi-server px-1"></i>服务器SN：</label>
+        <input id="serverSN" type="text" class="form-control" placeholder="请扫码">
     </div>
     <!-- 品牌选择（动态） -->
-    <div id="brandSection" class="row mb-3 d-none">
+    <div id="brandSection" class="row my-3 d-none">
         <div class="col">
-            <label class="form-label text-danger" for="newBrand">新件品牌</label>
+            <label class="form-label text-danger fw-bold" for="newBrand">新件品牌：</label>
             <select id="newBrand" class="form-select"></select>
         </div>
-        <div class="col">
-            <label class="form-label text-success" for="oldBrand">旧件品牌</label>
+        <div class="col text-end">
+            <label class="form-label text-secondary fw-bold" for="oldBrand">旧件品牌：</label>
             <select id="oldBrand" class="form-select"></select>
         </div>
     </div>
-    <!-- 四个PN/SN -->
-    <div class="form-group mb-3">
-        <label class="form-label d-flex justify-content-between" for="newPN">
-            <small class="text-primary">新件P<i class="bi bi-dot"></i>N</small><small id="countNewPN" class="text-muted">字符数：0</small>
-        </label>
-        <input id="newPN" type="text" class="form-control" placeholder="新件PN">
-    </div>
-    <div class="form-group mb-3">
+    <div class="form-group my-3">
         <label class="form-label d-flex justify-content-between" for="newSN">
-            <small class="text-primary fw-bold">新件S<i class="bi bi-slash"></i>N</small><small id="countNewSN" class="text-muted">字符数：0</small>
+            <span class="text-danger fw-bold">新件SN：</span><small id="countNewSN" class="text-muted">字符数：0</small>
         </label>
-        <input id="newSN" type="text" class="form-control" placeholder="新件SN">
+        <input id="newSN" type="text" class="form-control" placeholder="">
     </div>
-    <div class="form-group mb-3">
-        <label class="form-label d-flex justify-content-between" for="oldPN">
-            <small class="">旧件P<i class="bi bi-dot"></i>N</small><small id="countOldPN" class="text-muted">字符数：0</small>
+    <div class="form-group my-3">
+        <label class="form-label d-flex justify-content-between" for="newPN">
+            <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
         </label>
-        <input id="oldPN" type="text" class="form-control" placeholder="旧件PN">
+        <input id="newPN" type="text" class="form-control" placeholder="">
     </div>
-    <div class="form-group mb-3">
+    <div class="form-group my-3">
         <label class="form-label d-flex justify-content-between" for="oldSN">
-            <small class="fw-bold">旧件S<i class="bi bi-slash"></i>N</small><small id="countOldSN" class="text-muted">字符数：0</small>
+            <span class="text-secondary fw-bold">旧件SN：</span><small id="countOldSN" class="text-muted">字符数：0</small>
         </label>
-        <input id="oldSN" type="text" class="form-control" placeholder="旧件SN">
+        <input id="oldSN" type="text" class="form-control" placeholder="">
+    </div>
+    <div class="form-group my-3">
+        <label class="form-label d-flex justify-content-between" for="oldPN">
+            <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
+        </label>
+        <input id="oldPN" type="text" class="form-control" placeholder="">
     </div>
     <!-- 预览 + 复制按钮 -->
     <div class="d-flex justify-content-between align-items-center mb-1">
-        <small class="form-label fw-bold mb-0">预览内容：</small>
-        <button id="copyBtn" class="btn btn-dark btn-sm"><i class="bi bi-clipboard px-1"></i>复制</button>
+        <small class="form-label mb-0">预览内容：</small>
+        <button id="copyBtn" class="btn btn-dark"><i class="bi bi-copy pe-1"></i>复制</button>
     </div>
-    <pre class="rounded"><code id="preview" class="language-plaintext">请开始输入信息</code></pre>
+    <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
     <script>
     const brandMap = {
         'AOC线缆': ['INNOLIGHT', 'WTD', 'Hisense', 'HG GENUINE'],
@@ -138,7 +136,7 @@
     function showToast(msg, type = 'primary') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
+        toast.className = `toast align-items-center text-bg-${type} border-0 show my-2`;
         toast.role = 'alert';
         toast.innerHTML = `
         <div class="d-flex">
@@ -166,7 +164,6 @@
     function update() {
         const type = typeSelect.value;
         const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
-
         const brand1 = newBrand.value || '';
         const brand2 = oldBrand.value || '';
         const pn1 = newPN.value.trim();
@@ -195,11 +192,12 @@
 单号：${order}
 ${isOptical ? '位置：' + positionText : positionText}
 新件品牌：${brand1}
-新件PN：${pn1}
 新件SN：${sn1}
+新件PN：${pn1}
 旧件品牌：${brand2}
+旧件SN：${sn2}
 旧件PN：${pn2}
-旧件SN：${sn2}`;
+`;
 
         preview.textContent = text;
         hljs.highlightElement(preview);
