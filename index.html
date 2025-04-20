@@ -20,7 +20,10 @@
     <div class="row mb-3">
         <div class="col">
             <label class="form-label fw-bold" for="orderNo">单号</label>
-            <input id="orderNo" type="text" class="form-control" placeholder="请输入单号">
+            <input id="orderNo" type="text" class="form-control" placeholder="请输入单号" onpaste="setTimeout(() => {
+           const val = this.value.match(/(\d+)(?!.*\d)/);
+           this.value = val ? val[0] : '';
+       }, 0)">
         </div>
         <div class="col">
             <label class="form-label fw-bold" for="type">配件类型</label>
