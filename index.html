@@ -20,10 +20,13 @@
     <div class="row mb-3">
         <div class="col">
             <label class="form-label fw-bold" for="orderNo">单号</label>
-            <input id="orderNo" type="text" class="form-control" placeholder="请输入单号" onpaste="setTimeout(() => {
-           const val = this.value.match(/(\d+)(?!.*\d)/);
-           this.value = val ? val[0] : '';
-       }, 0)">
+           <input id="orderNo" type="text" class="form-control" placeholder="请输入单号"
+       onpaste="setTimeout(() => {
+         const val = this.value.match(/(\d+)(?!.*\d)/);
+         this.value = val ? val[0] : '';
+       }, 0)"
+       oninput="this.value = this.value.replace(/\D/g, '')">
+
         </div>
         <div class="col">
             <label class="form-label fw-bold" for="type">配件类型</label>
@@ -162,7 +165,8 @@
 
     function update() {
         const type = typeSelect.value;
-        const order = orderNo.value.trim();
+        const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
+
         const brand1 = newBrand.value || '';
         const brand2 = oldBrand.value || '';
         const pn1 = newPN.value.trim();
