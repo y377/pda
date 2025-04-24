@@ -2,193 +2,207 @@
 <html lang="zh">
 
 <head>
-    <meta charset="UTF-8">
-    <title>配件扫码录入</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
-    <link crossorigin="anonymous" href="https://lib.baomitu.com/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/github-dark.css" rel="stylesheet">
-    <script crossorigin="anonymous" src="https://lib.baomitu.com/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-    <script crossorigin="anonymous" src="https://lib.baomitu.com/highlight.js/11.10.0/highlight.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>配件扫码录入</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+  <link crossorigin="anonymous" href="https://lib.baomitu.com/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/github-dark.css" rel="stylesheet" />
+  <script crossorigin="anonymous" src="https://lib.baomitu.com/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script crossorigin="anonymous" src="https://lib.baomitu.com/highlight.js/11.10.0/highlight.min.js"></script>
 </head>
 
 <body class="container mb-5">
-    <p class="text-center pt-2"><i class="bi bi-qr-code-scan px-1"></i>配件扫码录入</p>
-    <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"></div>
-    <!-- 单号 + 配件类型 -->
-    <div class="row my-3">
-        <div class="col">
-            <label class="form-label fw-bold" for="orderNo">单号：</label>
-           <input id="orderNo" type="text" class="form-control" placeholder="请输入单号"
-       onpaste="setTimeout(() => {
-         const val = this.value.match(/(\d+)(?!.*\d)/);
-         this.value = val ? val[0] : '';
-       }, 0)" 
-       oninput="this.value = this.value.replace(/\D/g, '')">
-        </div>
-        <div class="col text-end">
-            <label class="form-label fw-bold" for="type">配件类型：</label>
-            <select id="type" class="form-select">
-                <option value="CPU">CPU</option>
-                <option value="内存">内存</option>
-                <option value="硬盘">硬盘</option>
-                <option value="光模块">光模块</option>
-                <option value="AOC线缆">AOC线缆</option>
-                <option value="主板">主板</option>
-                <option value="电源">电源</option>
-                <option value="网卡">网卡</option>
-                <option value="交换机">交换机</option>
-            </select>
-        </div>
+  <p class="text-center pt-2"><i class="bi bi-qr-code-scan px-1"></i>配件扫码录入</p>
+  <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"></div>
+
+  <div class="row my-3">
+    <div class="col">
+      <label class="form-label fw-bold" for="orderNo">单号：</label>
+      <input id="orderNo" type="text" class="form-control" placeholder="请输入单号"
+        onpaste="setTimeout(() => { const val = this.value.match(/(\d+)(?!.*\d)/); this.value = val ? val[0] : ''; }, 0)"
+        oninput="this.value = this.value.replace(/\D/g, '')">
     </div>
-    <!-- 光模块时：交换机位置 + 端口号 -->
-    <div id="switchInfoRow" class="row my-3 d-none">
-        <div class="col-8 pe-1">
-            <label class="form-label" for="switchLocation">交换机位置：</label>
-            <input id="switchLocation" type="text" class="form-control" placeholder="">
-        </div>
-        <div class="col-4 ps-1 text-end">
-            <label class="form-label" for="portNo">端口：</label>
-            <input id="portNo" type="text" class="form-control" placeholder="">
-        </div>
+    <div class="col text-end">
+      <label class="form-label fw-bold" for="type">配件类型：</label>
+      <select id="type" class="form-select">
+        <option value="CPU">CPU</option>
+        <option value="内存">内存</option>
+        <option value="硬盘">硬盘</option>
+        <option value="光模块">光模块</option>
+        <option value="AOC线缆">AOC线缆</option>
+        <option value="主板">主板</option>
+        <option value="电源">电源</option>
+        <option value="网卡">网卡</option>
+        <option value="交换机">交换机</option>
+      </select>
     </div>
-    <!-- 非光模块时：服务器SN -->
-    <div id="serverSNRow" class="my-3">
-        <label class="form-label font-monospace" for="serverSN"><i class="bi bi-server px-1"></i>服务器SN：</label>
-        <input id="serverSN" type="text" class="form-control" placeholder="请扫码">
+  </div>
+
+  <div id="switchInfoRow" class="row my-3 d-none">
+    <div class="col-8 pe-1">
+      <label class="form-label" for="switchLocation">交换机位置：</label>
+      <input id="switchLocation" type="text" class="form-control" placeholder="">
     </div>
-    <!-- 品牌选择（动态） -->
-    <div id="brandSection" class="row my-3 d-none">
-        <div class="col">
-            <label class="form-label text-danger fw-bold" for="newBrand">新件品牌：</label>
-            <select id="newBrand" class="form-select"></select>
-        </div>
-        <div class="col text-end">
-            <label class="form-label text-secondary fw-bold" for="oldBrand">旧件品牌：</label>
-            <select id="oldBrand" class="form-select"></select>
-        </div>
+    <div class="col-4 ps-1 text-end">
+      <label class="form-label" for="portNo">端口：</label>
+      <input id="portNo" type="text" class="form-control" placeholder="">
     </div>
-    <div class="form-group my-3">
-        <label class="form-label d-flex justify-content-between" for="newSN">
-            <span class="text-danger fw-bold">新件SN：</span><small id="countNewSN" class="text-muted">字符数：0</small>
-        </label>
-        <input id="newSN" type="text" class="form-control" placeholder="">
+  </div>
+
+  <div id="serverSNRow" class="my-3">
+    <label class="form-label font-monospace" for="serverSN"><i class="bi bi-server px-1"></i>服务器SN：</label>
+    <input id="serverSN" type="text" class="form-control" placeholder="请扫码">
+  </div>
+
+  <div id="brandSection" class="row my-3 d-none">
+    <div class="col">
+      <label class="form-label text-danger fw-bold" for="newBrand">新件品牌：</label>
+      <select id="newBrand" class="form-select"></select>
     </div>
-    <div class="form-group my-3">
-        <label class="form-label d-flex justify-content-between" for="newPN">
-            <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
-        </label>
-        <input id="newPN" type="text" class="form-control" placeholder="">
+    <div class="col text-end">
+      <label class="form-label text-secondary fw-bold" for="oldBrand">旧件品牌：</label>
+      <select id="oldBrand" class="form-select"></select>
     </div>
-    <div class="form-group my-3">
-        <label class="form-label d-flex justify-content-between" for="oldSN">
-            <span class="text-secondary fw-bold">旧件SN：</span><small id="countOldSN" class="text-muted">字符数：0</small>
-        </label>
-        <input id="oldSN" type="text" class="form-control" placeholder="">
-    </div>
-    <div class="form-group my-3">
-        <label class="form-label d-flex justify-content-between" for="oldPN">
-            <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
-        </label>
-        <input id="oldPN" type="text" class="form-control" placeholder="">
-    </div>
-    <!-- 预览 + 复制按钮 -->
-    <div class="d-flex justify-content-between align-items-center mb-1">
-        <small class="form-label mb-0">预览内容：</small>
-        <button id="copyBtn" class="btn btn-dark"><i class="bi bi-copy pe-1"></i>复制</button>
-    </div>
-    <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
-    <script>
-    const brandMap = {
-        'AOC线缆': ['INNOLIGHT', 'WTD', 'Hisense', 'HG GENUINE'],
-        '内存': ['Samsung', 'Hynix', 'Micron'],
-        '硬盘': ['Seagate', 'Western Digital', 'Intel', 'Samsung', 'Micron', 'KIOXIA', 'Solidigm'],
-        '光模块': ['WTD', 'Finisar', 'HGTECH', 'INNO LIGHT', 'Hisense', 'HUAWEI'],
-        'CPU': ['Intel']
-    };
+  </div>
 
-    const orderNo = document.getElementById('orderNo');
-    const typeSelect = document.getElementById('type');
-    const switchInfoRow = document.getElementById('switchInfoRow');
-    const switchLocation = document.getElementById('switchLocation');
-    const portNo = document.getElementById('portNo');
-    const serverSNRow = document.getElementById('serverSNRow');
-    const serverSN = document.getElementById('serverSN');
+  <div class="form-group my-3">
+    <label class="form-label d-flex justify-content-between" for="newSN">
+      <span class="text-danger fw-bold">新件SN：</span><small id="countNewSN" class="text-muted">字符数：0</small>
+    </label>
+    <input id="newSN" type="text" class="form-control" placeholder="">
+  </div>
 
-    const brandSection = document.getElementById('brandSection');
-    const newBrand = document.getElementById('newBrand');
-    const oldBrand = document.getElementById('oldBrand');
+  <div class="form-group my-3">
+    <label class="form-label d-flex justify-content-between" for="newPN">
+      <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
+    </label>
+    <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="">
+    <datalist id="newPnOptions"></datalist>
+  </div>
 
-    const newPN = document.getElementById('newPN');
-    const newSN = document.getElementById('newSN');
-    const oldPN = document.getElementById('oldPN');
-    const oldSN = document.getElementById('oldSN');
+  <div class="form-group my-3">
+    <label class="form-label d-flex justify-content-between" for="oldSN">
+      <span class="text-secondary fw-bold">旧件SN：</span><small id="countOldSN" class="text-muted">字符数：0</small>
+    </label>
+    <input id="oldSN" type="text" class="form-control" placeholder="">
+  </div>
 
-    const countNewPN = document.getElementById('countNewPN');
-    const countNewSN = document.getElementById('countNewSN');
-    const countOldPN = document.getElementById('countOldPN');
-    const countOldSN = document.getElementById('countOldSN');
+  <div class="form-group my-3">
+    <label class="form-label d-flex justify-content-between" for="oldPN">
+      <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
+    </label>
+    <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="">
+    <datalist id="oldPnOptions"></datalist>
+  </div>
 
-    const preview = document.getElementById('preview');
-    const copyBtn = document.getElementById('copyBtn');
+  <div class="d-flex justify-content-between align-items-center mb-1">
+    <small class="form-label mb-0">预览内容：</small>
+    <button id="copyBtn" class="btn btn-dark"><i class="bi bi-copy pe-1"></i>复制</button>
+  </div>
+  <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
-    function showToast(msg, type = 'primary') {
-        const container = document.getElementById('toastContainer');
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-bg-${type} border-0 show my-2`;
-        toast.role = 'alert';
-        toast.innerHTML = `
-        <div class="d-flex">
-          <div class="toast-body">${msg}</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>`;
-        container.appendChild(toast);
-        setTimeout(() => toast.remove(), 1000);
-    }
+  <script>
 
-    function updateBrandOptions(type) {
-        const brands = brandMap[type];
-        if (brands) {
-            const options = brands.map(b => `<option value="${b}" ${b === 'Intel' ? 'selected' : ''}>${b}</option>`).join('');
-            newBrand.innerHTML = options;
-            oldBrand.innerHTML = options;
-            brandSection.classList.remove('d-none');
-        } else {
-            brandSection.classList.add('d-none');
-            newBrand.innerHTML = '';
-            oldBrand.innerHTML = '';
-        }
-    }
+const brandMap = {
+  'AOC线缆': ['INNOLIGHT', 'WTD', 'Hisense', 'HG GENUINE'],
+  '内存': ['Samsung', 'Hynix', 'Micron'],
+  '硬盘': ['Seagate', 'Western Digital', 'Intel', 'Samsung', 'Micron', 'KIOXIA', 'Solidigm'],
+  '光模块': ['WTD', 'Finisar', 'HG GENUINE', 'INNOLIGHT', 'Hisense', 'Huawei'],
+  'CPU': ['Intel']
+};
 
-    function update() {
-        const type = typeSelect.value;
-        const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
-        const brand1 = newBrand.value || '';
-        const brand2 = oldBrand.value || '';
-        const pn1 = newPN.value.trim();
-        const sn1 = newSN.value.trim();
-        const pn2 = oldPN.value.trim();
-        const sn2 = oldSN.value.trim();
+const pnData = {
+  'HG GENUINE': ['MTRQ-4S101', 'MTRS-01X11-G', 'MQD-12F1C'],
+  'INNOLIGHT': ['T-DQ8FNS-N01', 'T-OL8CNT-N00', 'T-DQ8FNS-N00', 'TR-ZC13T-N00'],
+  'Finisar': ['FTCE4717E1PCB-BY'],
+  'Huawei': ['OM3660FX102', 'OM3680SX200'],
+  'Hisense': ['LMS3821L-PCS'],
+  'WTD': ['RTXM228-401', 'RTXM500-410', 'OEO-M100-62-13-Q28']
+};
 
-        const isOptical = type === '光模块';
-        const server = serverSN.value.trim();
-        const switchLoc = switchLocation.value.trim();
-        const port = portNo.value.trim();
+const typeSelect = document.getElementById('type');
+const orderNo = document.getElementById('orderNo');
+const serverSN = document.getElementById('serverSN');
+const switchLocation = document.getElementById('switchLocation');
+const portNo = document.getElementById('portNo');
+const serverSNRow = document.getElementById('serverSNRow');
+const switchInfoRow = document.getElementById('switchInfoRow');
 
-        countNewPN.textContent = `字符数：${pn1.length}`;
-        countNewSN.textContent = `字符数：${sn1.length}`;
-        countOldPN.textContent = `字符数：${pn2.length}`;
-        countOldSN.textContent = `字符数：${sn2.length}`;
+const newBrand = document.getElementById('newBrand');
+const oldBrand = document.getElementById('oldBrand');
+const newPN = document.getElementById('newPN');
+const oldPN = document.getElementById('oldPN');
+const newSN = document.getElementById('newSN');
+const oldSN = document.getElementById('oldSN');
+const newPnOptions = document.getElementById('newPnOptions');
+const oldPnOptions = document.getElementById('oldPnOptions');
 
-        let positionText = '';
-        if (isOptical) {
-            positionText = `${switchLoc} ${port}`;
-        } else {
-            positionText = `服务器SN：${server}`;
-        }
+const countNewPN = document.getElementById('countNewPN');
+const countNewSN = document.getElementById('countNewSN');
+const countOldPN = document.getElementById('countOldPN');
+const countOldSN = document.getElementById('countOldSN');
+const preview = document.getElementById('preview');
+const copyBtn = document.getElementById('copyBtn');
 
-        const text = `上新下旧：更换「${type}」
+function showToast(msg, type = 'primary') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center text-bg-${type} border-0 show my-2`;
+  toast.role = 'alert';
+  toast.innerHTML = `
+    <div class="d-flex">
+      <div class="toast-body">${msg}</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 1200);
+}
+
+function updateBrandOptions(type) {
+  const brands = brandMap[type];
+  const section = document.getElementById('brandSection');
+  if (brands) {
+    newBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+    oldBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+    section.classList.remove('d-none');
+  } else {
+    newBrand.innerHTML = '';
+    oldBrand.innerHTML = '';
+    section.classList.add('d-none');
+  }
+  updatePnOptions(newBrand.value, newPnOptions);
+  updatePnOptions(oldBrand.value, oldPnOptions);
+}
+
+function updatePnOptions(brand, datalist) {
+  const pnList = pnData[brand] || [];
+  datalist.innerHTML = pnList.map(pn => `<option value="${pn}">`).join('');
+}
+
+function update() {
+  const type = typeSelect.value;
+  const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
+  const isOptical = type === '光模块';
+  const server = serverSN.value.trim();
+  const switchLoc = switchLocation.value.trim();
+  const port = portNo.value.trim();
+  const brand1 = newBrand.value || '';
+  const brand2 = oldBrand.value || '';
+  const pn1 = newPN.value.trim();
+  const sn1 = newSN.value.trim();
+  const pn2 = oldPN.value.trim();
+  const sn2 = oldSN.value.trim();
+
+  countNewPN.textContent = `字符数：${pn1.length}`;
+  countNewSN.textContent = `字符数：${sn1.length}`;
+  countOldPN.textContent = `字符数：${pn2.length}`;
+  countOldSN.textContent = `字符数：${sn2.length}`;
+
+  const positionText = isOptical ? `${switchLoc} ${port}` : `服务器SN：${server}`;
+
+  const text = `上新下旧：更换「${type}」
 单号：${order}
 ${isOptical ? '位置：' + positionText : positionText}
 新件品牌：${brand1}
@@ -196,53 +210,53 @@ ${isOptical ? '位置：' + positionText : positionText}
 新件PN：${pn1}
 旧件品牌：${brand2}
 旧件SN：${sn2}
-旧件PN：${pn2}
-`;
+旧件PN：${pn2}`;
 
-        preview.textContent = text;
-        hljs.highlightElement(preview);
-    }
+  preview.textContent = text;
+  hljs.highlightElement(preview);
+}
 
-    typeSelect.addEventListener('change', () => {
-        const isOptical = typeSelect.value === '光模块';
-        serverSNRow.classList.toggle('d-none', isOptical);
-        switchInfoRow.classList.toggle('d-none', !isOptical);
-        updateBrandOptions(typeSelect.value);
-        update();
-    });
+typeSelect.addEventListener('change', () => {
+  const isOptical = typeSelect.value === '光模块';
+  serverSNRow.classList.toggle('d-none', isOptical);
+  switchInfoRow.classList.toggle('d-none', !isOptical);
+  updateBrandOptions(typeSelect.value);
+  update();
+});
 
-    [orderNo, serverSN, switchLocation, portNo, newPN, newSN, oldPN, oldSN, newBrand, oldBrand].forEach(input => {
-        input.addEventListener('input', update);
-    });
-
-    copyBtn.addEventListener('click', () => {
-        const text = preview.innerText.trim();
-        if (!text || text.includes('请开始输入')) {
-            showToast('请先输入完整内容', 'warning');
-            return;
-        }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('已复制到剪贴板');
-            }).catch(() => {
-                showToast('复制失败，请手动复制', 'danger');
-            });
-        } else {
-            const tempInput = document.createElement('textarea');
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            showToast('已复制到剪贴板（兼容模式）');
-        }
-
-    });
-
-    // 初始化
-    updateBrandOptions(typeSelect.value);
+[newBrand, oldBrand].forEach((select, index) => {
+  select.addEventListener('change', () => {
+    const datalist = index === 0 ? newPnOptions : oldPnOptions;
+    updatePnOptions(select.value, datalist);
     update();
-    </script>
+  });
+});
+
+[
+  orderNo, serverSN, switchLocation, portNo,
+  newPN, newSN, oldPN, oldSN,
+  newBrand, oldBrand
+].forEach(el => el.addEventListener('input', update));
+
+copyBtn.addEventListener('click', () => {
+  const text = preview.innerText.trim();
+  if (!text || text.includes('请开始输入')) {
+    showToast('请先输入完整内容', 'warning');
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('已复制到剪贴板');
+  }).catch(() => {
+    showToast('复制失败，请手动复制', 'danger');
+  });
+});
+
+// 初始化
+updateBrandOptions(typeSelect.value);
+update();
+</script>
+
+
 </body>
 
 </html>
