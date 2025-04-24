@@ -74,13 +74,15 @@
     <input id="newSN" type="text" class="form-control" placeholder="">
   </div>
 
-  <div class="form-group my-3">
-    <label class="form-label d-flex justify-content-between" for="newPN">
-      <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
-    </label>
-    <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="">
-    <datalist id="newPnOptions"></datalist>
-  </div>
+<div class="form-group my-3">
+  <label class="form-label d-flex justify-content-between" for="newPN">
+    <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
+  </label>
+  <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="">
+  <datalist id="newPnOptions"></datalist>
+</div>
+
+
 
   <div class="form-group my-3">
     <label class="form-label d-flex justify-content-between" for="oldSN">
@@ -89,80 +91,50 @@
     <input id="oldSN" type="text" class="form-control" placeholder="">
   </div>
 
-  <div class="form-group my-3">
-    <label class="form-label d-flex justify-content-between" for="oldPN">
-      <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
-    </label>
-    <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="">
-    <datalist id="oldPnOptions"></datalist>
-  </div>
-
+<div class="form-group my-3">
+  <label class="form-label d-flex justify-content-between" for="oldPN">
+    <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
+  </label>
+  <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="">
+  <datalist id="oldPnOptions"></datalist>
+</div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
     <button id="copyBtn" class="btn btn-dark"><i class="bi bi-copy pe-1"></i>复制</button>
   </div>
   <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
-  <script>
-
+<script>
 const brandMap = {
-  'AOC线缆': ['INNOLIGHT', 'WTD', 'Hisense', 'HG GENUINE'],
+  'AOC线缆': ['HG GENUINE', 'INNOLIGHT', 'Hisense', 'WTD'],
+  '光模块': ['HG GENUINE', 'INNOLIGHT', 'Hisense', 'Huawei', 'Finisar', 'WTD'],
   '内存': ['Samsung', 'Hynix', 'Micron'],
   '硬盘': ['Seagate', 'Western Digital', 'Intel', 'Samsung', 'Micron', 'KIOXIA', 'Solidigm'],
-  '光模块': ['WTD', 'Finisar', 'HG GENUINE', 'INNOLIGHT', 'Hisense', 'Huawei'],
   'CPU': ['Intel']
 };
 
-// const pnData = {
-//   'HG GENUINE': ['MTRQ-4S101', 'MTRS-01X11-G', 'MQD-12F1C'],
-//   'INNOLIGHT': ['T-DQ8FNS-N01', 'T-OL8CNT-N00', 'T-DQ8FNS-N00', 'TR-ZC13T-N00'],
-//   'Finisar': ['FTCE4717E1PCB-BY'],
-//   'Huawei': ['OM3660FX102', 'OM3680SX200'],
-//   'Hisense': ['LMS3821L-PCS'],
-//   'WTD': ['RTXM228-401', 'RTXM500-410', 'OEO-M100-62-13-Q28']
-// };
-const pnData = {
-  "HG GENUINE": [
-    "MTRQ-4S101",
-    "MTRS-01X11-G",
-    "MQD-12F1C",
-    "ATRP-B007",
-    "ATRP-B005",
-    "ATRP-B010"
-  ],
-  "INNOLIGHT": [
-    "T-DQ8FNS-N01",
-    "T-OL8CNT-N00",
-    "T-DQ8FNS-N00",
-    "TR-ZC13T-N00"
-  ],
-  "Finisar": [
-    "FTCE4717E1PCB-BY"
-  ],
-  "Huawei": [
-    "OM3660FX102",
-    "OM3680SX200"
-  ],
-  "Hisense": [
-    "LMS3821L-PCS",
-    "DMM8211-DC07",
-    "DMM8211-DC05"
-  ],
-  "WTD": [
-    "RTXM228-401",
-    "RTXM500-410",
-    "OEO-M100-62-13-Q28",
-    "RTXM520-105",
-    "RTXM520-110"
-  ]
+const pnDataMap = {
+  '光模块': {
+    'HG GENUINE': ['MTRQ-4S101', 'MTRS-01X11-G', 'MQD-12F1C'],
+    'INNOLIGHT': ['T-DQ8FNS-N01', 'T-OL8CNT-N00', 'T-DQ8FNS-N00', 'TR-ZC13T-N00'],
+    'Finisar': ['FTCE4717E1PCB-BY'],
+    'Huawei': ['OM3660FX102', 'OM3680SX200'],
+    'Hisense': ['LMS3821L-PCS'],
+    'WTD': ['RTXM228-401', 'RTXM500-410', 'OEO-M100-62-13-Q28']
+  },
+  'AOC线缆': {
+    'HG GENUINE': ['ATRP-B007', 'ATRP-B005', 'ATRP-B010'],
+    'INNOLIGHT': [],
+    'Hisense': ['DMM8211-DC07', 'DMM8211-DC05'],
+    'WTD': ['RTXM520-105', 'RTXM520-110']
+  }
 };
 
-
-const typeSelect = document.getElementById('type');
 const orderNo = document.getElementById('orderNo');
-const serverSN = document.getElementById('serverSN');
+const typeSelect = document.getElementById('type');
 const switchLocation = document.getElementById('switchLocation');
 const portNo = document.getElementById('portNo');
+const serverSN = document.getElementById('serverSN');
 const serverSNRow = document.getElementById('serverSNRow');
 const switchInfoRow = document.getElementById('switchInfoRow');
 
@@ -172,6 +144,7 @@ const newPN = document.getElementById('newPN');
 const oldPN = document.getElementById('oldPN');
 const newSN = document.getElementById('newSN');
 const oldSN = document.getElementById('oldSN');
+
 const newPnOptions = document.getElementById('newPnOptions');
 const oldPnOptions = document.getElementById('oldPnOptions');
 
@@ -179,6 +152,7 @@ const countNewPN = document.getElementById('countNewPN');
 const countNewSN = document.getElementById('countNewSN');
 const countOldPN = document.getElementById('countOldPN');
 const countOldSN = document.getElementById('countOldSN');
+
 const preview = document.getElementById('preview');
 const copyBtn = document.getElementById('copyBtn');
 
@@ -208,22 +182,22 @@ function updateBrandOptions(type) {
     oldBrand.innerHTML = '';
     section.classList.add('d-none');
   }
-  updatePnOptions(newBrand.value, newPnOptions);
-  updatePnOptions(oldBrand.value, oldPnOptions);
+  updatePnOptions(type, newBrand.value, newPnOptions);
+  updatePnOptions(type, oldBrand.value, oldPnOptions);
 }
 
-function updatePnOptions(brand, datalist) {
-  const pnList = pnData[brand] || [];
-  datalist.innerHTML = pnList.map(pn => `<option value="${pn}">`).join('');
+function updatePnOptions(type, brand, datalist) {
+  const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
+  datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
 }
 
 function update() {
   const type = typeSelect.value;
   const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
   const isOptical = type === '光模块';
-  const server = serverSN.value.trim();
   const switchLoc = switchLocation.value.trim();
   const port = portNo.value.trim();
+  const server = serverSN.value.trim();
   const brand1 = newBrand.value || '';
   const brand2 = oldBrand.value || '';
   const pn1 = newPN.value.trim();
@@ -252,26 +226,28 @@ ${isOptical ? '位置：' + positionText : positionText}
   hljs.highlightElement(preview);
 }
 
+// 注册事件
 typeSelect.addEventListener('change', () => {
-  const isOptical = typeSelect.value === '光模块';
+  const type = typeSelect.value;
+  const isOptical = type === '光模块';
   serverSNRow.classList.toggle('d-none', isOptical);
   switchInfoRow.classList.toggle('d-none', !isOptical);
-  updateBrandOptions(typeSelect.value);
+  updateBrandOptions(type);
   update();
 });
 
 [newBrand, oldBrand].forEach((select, index) => {
   select.addEventListener('change', () => {
+    const type = typeSelect.value;
     const datalist = index === 0 ? newPnOptions : oldPnOptions;
-    updatePnOptions(select.value, datalist);
+    updatePnOptions(type, select.value, datalist);
     update();
   });
 });
 
 [
   orderNo, serverSN, switchLocation, portNo,
-  newPN, newSN, oldPN, oldSN,
-  newBrand, oldBrand
+  newPN, newSN, oldPN, oldSN
 ].forEach(el => el.addEventListener('input', update));
 
 copyBtn.addEventListener('click', () => {
