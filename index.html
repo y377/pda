@@ -72,33 +72,35 @@
     <label class="form-label d-flex justify-content-between" for="newSN">
       <span class="text-danger fw-bold">新件SN：</span><small id="countNewSN" class="text-muted">字符数：0</small>
     </label>
-    <input id="newSN" type="text" class="form-control" placeholder="">
+    <input id="newSN" type="text" class="form-control" placeholder="" 
+           oninput="this.value = this.value.toUpperCase(); this.value = this.value.replace(/[^A-Z0-9-]/g, '')">
   </div>
 
-<div class="form-group my-3">
-  <label class="form-label d-flex justify-content-between" for="newPN">
-    <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
-  </label>
-  <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
-  <datalist id="newPnOptions"></datalist>
-</div>
-
-
+  <div class="form-group my-3">
+    <label class="form-label d-flex justify-content-between" for="newPN">
+      <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
+    </label>
+    <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="" autocorrect="off"
+           oninput="this.value = this.value.toUpperCase(); this.value = this.value.replace(/[^A-Z0-9-+]/g, '')">
+    <datalist id="newPnOptions"></datalist>
+  </div>
 
   <div class="form-group my-3">
     <label class="form-label d-flex justify-content-between" for="oldSN">
       <span class="text-secondary fw-bold">旧件SN：</span><small id="countOldSN" class="text-muted">字符数：0</small>
     </label>
-    <input id="oldSN" type="text" class="form-control" placeholder="">
+    <input id="oldSN" type="text" class="form-control" placeholder=""
+           oninput="this.value = this.value.toUpperCase(); this.value = this.value.replace(/[^A-Z0-9-]/g, '')">
   </div>
 
-<div class="form-group my-3">
-  <label class="form-label d-flex justify-content-between" for="oldPN">
-    <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
-  </label>
-  <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
-  <datalist id="oldPnOptions"></datalist>
-</div>
+  <div class="form-group my-3">
+    <label class="form-label d-flex justify-content-between" for="oldPN">
+      <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
+    </label>
+    <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="" autocorrect="off"
+           oninput="this.value = this.value.toUpperCase(); this.value = this.value.replace(/[^A-Z0-9-+]/g, '')">
+    <datalist id="oldPnOptions"></datalist>
+  </div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
     <button id="copyBtn" class="btn btn-outline-primary"><i class="bi bi-copy pe-1"></i>复制</button>
@@ -198,15 +200,35 @@ function update() {
   const type = typeSelect.value;
   const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
   const isOptical = type === '光模块';
-  const switchLoc = switchLocation.value.trim();
-  const port = portNo.value.trim();
-  const server = serverSN.value.trim();
+  const switchLoc = switchLocation.value.trim().toUpperCase();
+  const port = portNo.value.trim().toUpperCase();
+  const server = serverSN.value.trim().toUpperCase();
   const brand1 = newBrand.value || '';
   const brand2 = oldBrand.value || '';
-  const pn1 = newPN.value.trim();
-  const sn1 = newSN.value.trim();
-  const pn2 = oldPN.value.trim();
-  const sn2 = oldSN.value.trim();
+  const pn1 = newPN.value.trim().toUpperCase();
+  const sn1 = newSN.value.trim().toUpperCase();
+  const pn2 = oldPN.value.trim().toUpperCase();
+  const sn2 = oldSN.value.trim().toUpperCase();
+
+  if (order && order.length < 5) {
+    showToast('单号长度不足', 'warning');
+  }
+  
+  if (isOptical && (!switchLoc || !port)) {
+    showToast('请填写完整的交换机位置和端口信息', 'warning');
+  }
+  
+  if (!isOptical && !server) {
+    showToast('请填写服务器SN', 'warning');
+  }
+
+  if (!pn1 || !sn1) {
+    showToast('请填写新件信息', 'warning');
+  }
+
+  if (!pn2 || !sn2) {
+    showToast('请填写旧件信息', 'warning');
+  }
 
   countNewPN.textContent = `字符数：${pn1.length}`;
   countNewSN.textContent = `字符数：${sn1.length}`;
@@ -259,10 +281,25 @@ copyBtn.addEventListener('click', () => {
     showToast('请先输入完整内容', 'warning');
     return;
   }
+  
+  // 添加按钮状态反馈
+  const originalText = copyBtn.innerHTML;
+  copyBtn.innerHTML = '<i class="bi bi-check-lg pe-1"></i>已复制';
+  copyBtn.classList.add('btn-success');
+  copyBtn.classList.remove('btn-outline-primary');
+  
   navigator.clipboard.writeText(text).then(() => {
     showToast('已复制到剪贴板');
+    setTimeout(() => {
+      copyBtn.innerHTML = originalText;
+      copyBtn.classList.remove('btn-success');
+      copyBtn.classList.add('btn-outline-primary');
+    }, 1500);
   }).catch(() => {
     showToast('复制失败，请手动复制', 'danger');
+    copyBtn.innerHTML = originalText;
+    copyBtn.classList.remove('btn-success');
+    copyBtn.classList.add('btn-outline-primary');
   });
 });
 
