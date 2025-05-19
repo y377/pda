@@ -197,8 +197,10 @@ function updatePnOptions(type, brand, datalist) {
 
 function formatSamsungMemoryPn(pn) {
   const index = pn.indexOf('M');
-  return index !== -1 ? pn.slice(index) : '';
+  return index !== -1 ? pn.slice(index) : pn;
 }
+
+
 
 function update() {
   const type = typeSelect.value;
@@ -209,63 +211,56 @@ function update() {
   const server = serverSN.value.trim();
   const brand1 = newBrand.value || '';
   const brand2 = oldBrand.value || '';
+
+  // 🔧 关键：用 let 声明可修改的变量
   let pn1 = newPN.value.trim();
-  const sn1 = newSN.value.trim();
+  let sn1 = newSN.value.trim();
   let pn2 = oldPN.value.trim();
-  const sn2 = oldSN.value.trim();
-    // 清除提示
+  let sn2 = oldSN.value.trim();
+
+  // 清除提示
   checkNewPN.textContent = '';
   checkOldPN.textContent = '';
   checkNewPN.className = '';
   checkOldPN.className = '';
 
+  // Samsung 内存格式化逻辑
+  if (type === '内存') {
+    if (brand1 === 'Samsung' && pn1.length > 0) {
+      const formatted = formatSamsungMemoryPn(pn1);
+      pn1 = formatted;
+      newPN.value = formatted;
+    }
 
+    if (brand2 === 'Samsung' && pn2.length > 0) {
+      const formatted = formatSamsungMemoryPn(pn2);
+      pn2 = formatted;
+      oldPN.value = formatted;
+    }
+  }
+
+  // ✅ 字符数统计（必须在格式化之后）
   countNewPN.textContent = `字符数：${pn1.length}`;
   countNewSN.textContent = `字符数：${sn1.length}`;
   countOldPN.textContent = `字符数：${pn2.length}`;
   countOldSN.textContent = `字符数：${sn2.length}`;
 
-// 需求1：内存Samsung品牌，格式化PN
+  // Samsung 格式校验提示
   if (type === '内存') {
-  if (brand1 === 'Samsung' && pn1.length > 0) {
-    const index1 = pn1.indexOf('M');
-    if (index1 !== -1) {
-      pn1 = pn1.slice(index1);
-    } else {
-      pn1 = '';
-    }
-    if (!pn1.startsWith('M')) {
+    if (brand1 === 'Samsung' && pn1 && !pn1.startsWith('M')) {
       checkNewPN.textContent = '请检查内存PN';
       checkNewPN.className = 'text-danger me-2';
-    } else {
-      checkNewPN.textContent = '';
-      checkNewPN.className = '';
     }
-    newPN.value = pn1;
-  }
 
-  if (brand2 === 'Samsung' && pn2.length > 0) {
-    const index2 = pn2.indexOf('M');
-    if (index2 !== -1) {
-      pn2 = pn2.slice(index2);
-    } else {
-      pn2 = '';
-    }
-    if (!pn2.startsWith('M')) {
+    if (brand2 === 'Samsung' && pn2 && !pn2.startsWith('M')) {
       checkOldPN.textContent = '请检查内存PN';
       checkOldPN.className = 'text-danger me-2';
-    } else {
-      checkOldPN.textContent = '';
-      checkOldPN.className = '';
     }
-    oldPN.value = pn2;
   }
-}
 
-
-  // 需求2：内存或硬盘，且新旧品牌一致时，比较PN是否一致
+  // PN 一致性检查（内存或硬盘）
   if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
-    if (pn1.length > 0 && pn2.length > 0) {
+    if (pn1 && pn2) {
       if (pn1 === pn2) {
         checkNewPN.textContent = 'PN一致';
         checkOldPN.textContent = 'PN一致';
@@ -280,6 +275,7 @@ function update() {
     }
   }
 
+  // 文本预览生成
   const positionText = isOptical ? `${switchLoc} ${port}` : `服务器SN：${server}`;
 
   const text = `上新下旧：更换「${type}」
@@ -295,6 +291,7 @@ ${isOptical ? '位置：' + positionText : positionText}
   preview.textContent = text;
   hljs.highlightElement(preview);
 }
+
 
 // 注册事件
 typeSelect.addEventListener('change', () => {
