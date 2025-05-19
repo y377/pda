@@ -77,7 +77,7 @@
 
 <div class="form-group my-3">
   <label class="form-label d-flex justify-content-between" for="newPN">
-    <span class="text-danger fw-bold">新件PN：</span><small id="countNewPN" class="text-muted">字符数：0</small>
+    <span class="text-danger fw-bold">新件PN：</span><span id="checkNewPN" class="text-success"></span><small id="countNewPN" class="text-muted">字符数：0</small>
   </label>
   <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
   <datalist id="newPnOptions"></datalist>
@@ -94,7 +94,7 @@
 
 <div class="form-group my-3">
   <label class="form-label d-flex justify-content-between" for="oldPN">
-    <span class="text-secondary fw-bold">旧件PN：</span><small id="countOldPN" class="text-muted">字符数：0</small>
+    <span class="text-secondary fw-bold">旧件PN：</span><span id="checkOldPN" class="text-success"></span><small id="countOldPN" class="text-muted">字符数：0</small>
   </label>
   <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
   <datalist id="oldPnOptions"></datalist>
@@ -193,6 +193,13 @@ function updatePnOptions(type, brand, datalist) {
   const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
   datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
 }
+function formatSamsungMemoryPn(pn) {
+  const index = pn.indexOf('M');
+  return index !== -1 ? pn.slice(index) : '请检查PN表';
+}
+
+const checkNewPN = document.getElementById('checkNewPN');
+const checkOldPN = document.getElementById('checkOldPN');
 
 function update() {
   const type = typeSelect.value;
@@ -203,15 +210,42 @@ function update() {
   const server = serverSN.value.trim();
   const brand1 = newBrand.value || '';
   const brand2 = oldBrand.value || '';
-  const pn1 = newPN.value.trim();
+  let pn1 = newPN.value.trim();
   const sn1 = newSN.value.trim();
-  const pn2 = oldPN.value.trim();
+  let pn2 = oldPN.value.trim();
   const sn2 = oldSN.value.trim();
 
+  // 特殊处理：内存 + 三星 品牌时处理 PN
+  if (type === '内存' && brand1.toLowerCase() === 'Samsung') {
+    pn1 = formatSamsungMemoryPn(pn1);
+  }
+  if (type === '内存' && brand2.toLowerCase() === 'Samsung') {
+    pn2 = formatSamsungMemoryPn(pn2);
+  }
   countNewPN.textContent = `字符数：${pn1.length}`;
   countNewSN.textContent = `字符数：${sn1.length}`;
   countOldPN.textContent = `字符数：${pn2.length}`;
   countOldSN.textContent = `字符数：${sn2.length}`;
+  // 清除提示
+  checkNewPN.textContent = '';
+  checkOldPN.textContent = '';
+  checkNewPN.className = '';
+  checkOldPN.className = '';
+
+  // PN 核对逻辑（仅限 内存 / 硬盘）
+  if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
+    if (pn1 && pn2 && pn1 === pn2) {
+      checkNewPN.textContent = 'PN一致';
+      checkOldPN.textContent = 'PN一致';
+      checkNewPN.className = 'text-success me-2';
+      checkOldPN.className = 'text-success me-2';
+    } else if (pn1 && pn2) {
+      checkNewPN.textContent = 'PN不一致';
+      checkOldPN.textContent = 'PN不一致';
+      checkNewPN.className = 'text-danger me-2';
+      checkOldPN.className = 'text-danger me-2';
+    }
+  }
 
   const positionText = isOptical ? `${switchLoc} ${port}` : `服务器SN：${server}`;
 
