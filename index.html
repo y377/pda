@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>配件扫码录入</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
@@ -155,7 +155,8 @@ const countNewPN = document.getElementById('countNewPN');
 const countNewSN = document.getElementById('countNewSN');
 const countOldPN = document.getElementById('countOldPN');
 const countOldSN = document.getElementById('countOldSN');
-
+const checkNewPN = document.getElementById('checkNewPN');
+const checkOldPN = document.getElementById('checkOldPN');
 const preview = document.getElementById('preview');
 const copyBtn = document.getElementById('copyBtn');
 
@@ -193,13 +194,11 @@ function updatePnOptions(type, brand, datalist) {
   const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
   datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
 }
+
 function formatSamsungMemoryPn(pn) {
   const index = pn.indexOf('M');
-  return index !== -1 ? pn.slice(index) : '请检查PN表';
+  return index !== -1 ? pn.slice(index) : '';
 }
-
-const checkNewPN = document.getElementById('checkNewPN');
-const checkOldPN = document.getElementById('checkOldPN');
 
 function update() {
   const type = typeSelect.value;
@@ -214,36 +213,70 @@ function update() {
   const sn1 = newSN.value.trim();
   let pn2 = oldPN.value.trim();
   const sn2 = oldSN.value.trim();
-
-  // 特殊处理：内存 + 三星 品牌时处理 PN
-  if (type === '内存' && brand1.toLowerCase() === 'Samsung') {
-    pn1 = formatSamsungMemoryPn(pn1);
-  }
-  if (type === '内存' && brand2.toLowerCase() === 'Samsung') {
-    pn2 = formatSamsungMemoryPn(pn2);
-  }
-  countNewPN.textContent = `字符数：${pn1.length}`;
-  countNewSN.textContent = `字符数：${sn1.length}`;
-  countOldPN.textContent = `字符数：${pn2.length}`;
-  countOldSN.textContent = `字符数：${sn2.length}`;
-  // 清除提示
+    // 清除提示
   checkNewPN.textContent = '';
   checkOldPN.textContent = '';
   checkNewPN.className = '';
   checkOldPN.className = '';
 
-  // PN 核对逻辑（仅限 内存 / 硬盘）
-  if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
-    if (pn1 && pn2 && pn1 === pn2) {
-      checkNewPN.textContent = 'PN一致';
-      checkOldPN.textContent = 'PN一致';
-      checkNewPN.className = 'text-success me-2';
-      checkOldPN.className = 'text-success me-2';
-    } else if (pn1 && pn2) {
-      checkNewPN.textContent = 'PN不一致';
-      checkOldPN.textContent = 'PN不一致';
+
+  countNewPN.textContent = `字符数：${pn1.length}`;
+  countNewSN.textContent = `字符数：${sn1.length}`;
+  countOldPN.textContent = `字符数：${pn2.length}`;
+  countOldSN.textContent = `字符数：${sn2.length}`;
+
+// 需求1：内存Samsung品牌，格式化PN
+  if (type === '内存') {
+  if (brand1 === 'Samsung' && pn1.length > 0) {
+    const index1 = pn1.indexOf('M');
+    if (index1 !== -1) {
+      pn1 = pn1.slice(index1);
+    } else {
+      pn1 = '';
+    }
+    if (!pn1.startsWith('M')) {
+      checkNewPN.textContent = '请检查内存PN';
       checkNewPN.className = 'text-danger me-2';
+    } else {
+      checkNewPN.textContent = '';
+      checkNewPN.className = '';
+    }
+    newPN.value = pn1;
+  }
+
+  if (brand2 === 'Samsung' && pn2.length > 0) {
+    const index2 = pn2.indexOf('M');
+    if (index2 !== -1) {
+      pn2 = pn2.slice(index2);
+    } else {
+      pn2 = '';
+    }
+    if (!pn2.startsWith('M')) {
+      checkOldPN.textContent = '请检查内存PN';
       checkOldPN.className = 'text-danger me-2';
+    } else {
+      checkOldPN.textContent = '';
+      checkOldPN.className = '';
+    }
+    oldPN.value = pn2;
+  }
+}
+
+
+  // 需求2：内存或硬盘，且新旧品牌一致时，比较PN是否一致
+  if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
+    if (pn1.length > 0 && pn2.length > 0) {
+      if (pn1 === pn2) {
+        checkNewPN.textContent = 'PN一致';
+        checkOldPN.textContent = 'PN一致';
+        checkNewPN.className = 'text-success me-2';
+        checkOldPN.className = 'text-success me-2';
+      } else {
+        checkNewPN.textContent = 'PN不一致';
+        checkOldPN.textContent = 'PN不一致';
+        checkNewPN.className = 'text-danger me-2';
+        checkOldPN.className = 'text-danger me-2';
+      }
     }
   }
 
