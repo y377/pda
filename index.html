@@ -99,11 +99,8 @@
 </div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
-    <div class="d-flex justify-content-between align-items-center mb-1">
-      <small class="form-label mb-0">预览内容：</small>
-      <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
-      <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
-    </div>
+    <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
+    <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
   </div>
   <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
@@ -331,13 +328,23 @@ copyBtn.addEventListener('click', () => {
 function sendToFeishu() {
   // 获取各字段
   const type = typeSelect.value;
-  const orderInput = orderNo.value.trim(); // 这里是完整url
-  // 提取最后的纯数字
-  const orderNum = orderInput.match(/(\d+)(?!.*\d)/)?.[0] || '';
-  if (!orderNum || !/^https?:\/\//.test(orderInput)) {
+  let orderInput = orderNo.value.trim();
+
+  // 自动提取 http(s) 开头的链接
+  const urlMatch = orderInput.match(/https?:\/\/[^\s]+/);
+  if (!urlMatch) {
     showToast('请粘贴完整的单号链接', 'warning');
     return;
   }
+  orderInput = urlMatch[0];
+
+  // 提取最后的纯数字
+  const orderNum = orderInput.match(/(\d+)(?!.*\d)/)?.[0] || '';
+  if (!orderNum) {
+    showToast('链接中未找到单号数字', 'warning');
+    return;
+  }
+
   const isOptical = type === '光模块';
   const switchLoc = switchLocation.value.trim();
   const port = portNo.value.trim();
@@ -351,16 +358,9 @@ function sendToFeishu() {
 
   // 组装富文本内容
   const contentArr = [
-    [ // 第一行
-      { tag: 'text', text: `上新下旧：更换「${type}」` }
-    ],
-    [ // 单号行，单号为超链接
-      { tag: 'text', text: '单号：' },
-      { tag: 'a', text: orderNum, href: orderInput }
-    ],
-    [ // 服务器SN或位置
-      { tag: 'text', text: isOptical ? `位置：${switchLoc} ${port}` : `服务器SN：${server}` }
-    ],
+    [ { tag: 'text', text: `上新下旧：更换「${type}」` } ],
+    [ { tag: 'text', text: '单号：' }, { tag: 'a', text: orderNum, href: orderInput } ],
+    [ { tag: 'text', text: isOptical ? `位置：${switchLoc} ${port}` : `服务器SN：${server}` } ],
     [ { tag: 'text', text: `新件品牌：${brand1}` } ],
     [ { tag: 'text', text: `新件SN：${sn1}` } ],
     [ { tag: 'text', text: `新件PN：${pn1}` } ],
