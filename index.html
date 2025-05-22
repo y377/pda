@@ -159,6 +159,17 @@ const checkOldPN = document.getElementById('checkOldPN');
 const preview = document.getElementById('preview');
 const copyBtn = document.getElementById('copyBtn');
 
+// 在单号输入框下方显示提取的数字单号
+const orderNoDisplay = document.createElement('div');
+orderNoDisplay.className = 'text-muted mt-1';
+orderNo.parentNode.appendChild(orderNoDisplay);
+
+orderNo.addEventListener('input', function() {
+  const val = orderNo.value.trim();
+  const num = val.match(/(\d+)(?!.*\d)/)?.[0] || '';
+  orderNoDisplay.textContent = num ? `单号识别：${num}` : '';
+});
+
 function showToast(msg, type = 'primary') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
@@ -365,10 +376,13 @@ function sendToFeishu() {
     [ { tag: 'text', text: `旧件PN：${pn2}` } ]
   ];
 
+  // 修正结构，外层加post
   const feishuPost = {
-    zh_cn: {
-      title: '配件更换通知',
-      content: contentArr
+    post: {
+      zh_cn: {
+        title: '配件更换通知',
+        content: contentArr
+      }
     }
   };
 
