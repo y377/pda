@@ -99,8 +99,8 @@
 </div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
-        <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
-        <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
+    <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
+    <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
   </div>
   <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
@@ -317,13 +317,8 @@ typeSelect.addEventListener('change', () => {
 ].forEach(el => el.addEventListener('input', update));
 
 copyBtn.addEventListener('click', () => {
-  const orderInput = orderNo.value.trim();
-  const orderNum = orderInput.match(/(\d+)(?!.*\d)/)?.[0] || '';
-  if (!orderNum) {
-    showToast('请先输入单号', 'warning');
-    return;
-  }
-  navigator.clipboard.writeText(orderNum).then(() => {
+  const text = preview.innerText.trim();
+  navigator.clipboard.writeText(text).then(() => {
     showToast('已复制到剪贴板');
   }).catch(() => {
     showToast('复制失败，请手动复制', 'danger');
@@ -336,6 +331,10 @@ function sendToFeishu() {
   const orderInput = orderNo.value.trim(); // 可能是完整url
   // 提取最后的纯数字
   const orderNum = orderInput.match(/(\d+)(?!.*\d)/)?.[0] || '';
+  if (!orderNum) {
+    showToast('请先输入单号', 'warning');
+    return;
+  }
   const isOptical = type === '光模块';
   const switchLoc = switchLocation.value.trim();
   const port = portNo.value.trim();
