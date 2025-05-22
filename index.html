@@ -99,8 +99,11 @@
 </div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
-    <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
-    <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
+    <div class="d-flex justify-content-between align-items-center mb-1">
+      <small class="form-label mb-0">预览内容：</small>
+      <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
+      <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
+    </div>
   </div>
   <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
@@ -328,11 +331,11 @@ copyBtn.addEventListener('click', () => {
 function sendToFeishu() {
   // 获取各字段
   const type = typeSelect.value;
-  const orderInput = orderNo.value.trim(); // 可能是完整url
+  const orderInput = orderNo.value.trim(); // 这里是完整url
   // 提取最后的纯数字
   const orderNum = orderInput.match(/(\d+)(?!.*\d)/)?.[0] || '';
-  if (!orderNum) {
-    showToast('请先输入单号', 'warning');
+  if (!orderNum || !/^https?:\/\//.test(orderInput)) {
+    showToast('请粘贴完整的单号链接', 'warning');
     return;
   }
   const isOptical = type === '光模块';
