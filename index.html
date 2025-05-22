@@ -192,7 +192,7 @@
 
     function update() {
         const type = typeSelect.value;
-        const order = orderNo.value.trim().match(/\d+/) ? . [0] || '';
+        const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
         const isOptical = type === '光模块';
         const switchLoc = switchLocation.value.trim();
         const port = portNo.value.trim();
