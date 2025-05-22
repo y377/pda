@@ -101,7 +101,11 @@
 </div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
-    <button id="copyBtn" class="btn btn-outline-primary"><i class="bi bi-copy pe-1"></i>复制</button>
+    <!-- <button id="copyBtn" class="btn btn-outline-primary"><i class="bi bi-copy pe-1"></i>复制</button> -->
+    <div class="btn-group" role="group" aria-label="Basic example">
+  <button id="copyBtn" class="btn btn-outline-primary"><i class="bi bi-copy pe-1"></i>复制</button>
+  <button class="btn btn-success" onclick="sendToFeishu()">发送到飞书</button>
+</div>
   </div>
   <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
@@ -329,6 +333,43 @@ copyBtn.addEventListener('click', () => {
     showToast('复制失败，请手动复制', 'danger');
   });
 });
+
+function sendToFeishu() {
+  const preview = document.getElementById('preview');
+  const text = preview?.textContent?.trim();
+
+  if (!text) {
+    alert('预览内容为空，无法发送');
+    return;
+  }
+
+  fetch('https://test.jsjs.net', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      text
+      // 如果你不需要 token 验证，可以不发 token
+    }),
+  })
+  .then(async res => {
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText || '网络错误');
+    }
+    return res.json();
+  })
+  .then(data => {
+    alert('已发送到飞书 ✅');
+    console.log(data);
+  })
+  .catch(err => {
+    alert('发送失败 ❌');
+    console.error(err);
+  });
+}
+
 
 // 初始化
 updateBrandOptions(typeSelect.value);
