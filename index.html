@@ -2,287 +2,271 @@
 <html lang="zh">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>配件扫码录入</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
-  <link crossorigin="anonymous" href="https://lib.baomitu.com/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
-  <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/github-dark.css" rel="stylesheet" />
-  <script crossorigin="anonymous" src="https://lib.baomitu.com/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
-  <script crossorigin="anonymous" src="https://lib.baomitu.com/highlight.js/11.10.0/highlight.min.js"></script>
+    <meta charset="UTF-8" />
+    <title>配件扫码录入</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link crossorigin="anonymous" href="https://lib.baomitu.com/twitter-bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link crossorigin="anonymous" href="https://lib.baomitu.com/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link crossorigin="anonymous" href="https://lib.baomitu.com/highlight.js/11.10.0/styles/github-dark.css" rel="stylesheet" />
+    <script crossorigin="anonymous" src="https://lib.baomitu.com/twitter-bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script crossorigin="anonymous" src="https://lib.baomitu.com/highlight.js/11.10.0/highlight.min.js"></script>
 </head>
 
 <body class="container mb-5">
-  <h5 class="text-center pt-2"><i class="bi bi-qr-code-scan px-2"></i>配件扫码录入</h5>
-  <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"></div>
-
-  <div class="row my-3">
-    <div class="col">
-      <label class="form-label fw-bold" for="orderNo">单号：</label>
-      <input id="orderNo" type="text" class="form-control" placeholder="请输入单号"
-        onpaste="setTimeout(() => { const val = this.value.match(/(\d+)(?!.*\d)/); this.value = val ? val[0] : ''; }, 0)"
-        oninput="this.value = this.value.replace(/\D/g, '')">
+    <h5 class="text-center pt-2"><i class="bi bi-qr-code-scan px-2"></i>配件扫码录入</h5>
+    <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"></div>
+    <div class="row my-3">
+        <div class="col">
+            <label class="form-label fw-bold" for="orderNo">单号：</label>
+            <input id="orderNo" type="text" class="form-control" placeholder="请输入单号">
+        </div>
+        <div class="col text-end">
+            <label class="form-label fw-bold" for="type">配件类型：</label>
+            <select id="type" class="form-select">
+                <option value="CPU">CPU</option>
+                <option value="内存">内存</option>
+                <option value="硬盘">硬盘</option>
+                <option value="光模块">光模块</option>
+                <option value="AOC线缆">AOC线缆</option>
+                <option value="主板">主板</option>
+                <option value="电源">电源</option>
+                <option value="网卡">网卡</option>
+                <option value="交换机">交换机</option>
+            </select>
+        </div>
     </div>
-    <div class="col text-end">
-      <label class="form-label fw-bold" for="type">配件类型：</label>
-      <select id="type" class="form-select">
-        <option value="CPU">CPU</option>
-        <option value="内存">内存</option>
-        <option value="硬盘">硬盘</option>
-        <option value="光模块">光模块</option>
-        <option value="AOC线缆">AOC线缆</option>
-        <option value="主板">主板</option>
-        <option value="电源">电源</option>
-        <option value="网卡">网卡</option>
-        <option value="交换机">交换机</option>
-      </select>
+    <div id="switchInfoRow" class="row my-3 d-none">
+        <div class="col-8 pe-1">
+            <label class="form-label" for="switchLocation">交换机位置：</label>
+            <input id="switchLocation" type="text" class="form-control" placeholder="">
+        </div>
+        <div class="col-4 ps-1 text-end">
+            <label class="form-label" for="portNo">端口：</label>
+            <input id="portNo" type="text" class="form-control" placeholder="">
+        </div>
     </div>
-  </div>
-
-  <div id="switchInfoRow" class="row my-3 d-none">
-    <div class="col-8 pe-1">
-      <label class="form-label" for="switchLocation">交换机位置：</label>
-      <input id="switchLocation" type="text" class="form-control" placeholder="">
+    <div id="serverSNRow" class="my-3">
+        <label class="form-label font-monospace" for="serverSN"><i class="bi bi-server px-1"></i>服务器SN：</label>
+        <input id="serverSN" type="text" class="form-control" placeholder="请扫码">
     </div>
-    <div class="col-4 ps-1 text-end">
-      <label class="form-label" for="portNo">端口：</label>
-      <input id="portNo" type="text" class="form-control" placeholder="">
+    <div id="brandSection" class="row my-3 d-none">
+        <div class="col">
+            <label class="form-label text-danger fw-bold" for="newBrand">新件品牌：</label>
+            <select id="newBrand" class="form-select"></select>
+        </div>
+        <div class="col text-end">
+            <label class="form-label text-secondary fw-bold" for="oldBrand">旧件品牌：</label>
+            <select id="oldBrand" class="form-select"></select>
+        </div>
     </div>
-  </div>
-
-  <div id="serverSNRow" class="my-3">
-    <label class="form-label font-monospace" for="serverSN"><i class="bi bi-server px-1"></i>服务器SN：</label>
-    <input id="serverSN" type="text" class="form-control" placeholder="请扫码">
-  </div>
-
-  <div id="brandSection" class="row my-3 d-none">
-    <div class="col">
-      <label class="form-label text-danger fw-bold" for="newBrand">新件品牌：</label>
-      <select id="newBrand" class="form-select"></select>
+    <div class="form-group my-3">
+        <label class="form-label d-flex justify-content-between" for="newSN">
+            <span class="text-danger fw-bold">新件SN：</span><small id="countNewSN" class="text-muted">字符数：0</small>
+        </label>
+        <input id="newSN" type="text" class="form-control" placeholder="">
     </div>
-    <div class="col text-end">
-      <label class="form-label text-secondary fw-bold" for="oldBrand">旧件品牌：</label>
-      <select id="oldBrand" class="form-select"></select>
+    <div class="form-group my-3">
+        <label class="form-label d-flex justify-content-between" for="newPN">
+            <span class="text-danger fw-bold">新件PN：</span><span id="checkNewPN" class="text-success"></span><small id="countNewPN" class="text-muted">字符数：0</small>
+        </label>
+        <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
+        <datalist id="newPnOptions"></datalist>
     </div>
-  </div>
+    <div class="form-group my-3">
+        <label class="form-label d-flex justify-content-between" for="oldSN">
+            <span class="text-secondary fw-bold">旧件SN：</span><small id="countOldSN" class="text-muted">字符数：0</small>
+        </label>
+        <input id="oldSN" type="text" class="form-control" placeholder="">
+    </div>
+    <div class="form-group my-3">
+        <label class="form-label d-flex justify-content-between" for="oldPN">
+            <span class="text-secondary fw-bold">旧件PN：</span><span id="checkOldPN" class="text-success"></span><small id="countOldPN" class="text-muted">字符数：0</small>
+        </label>
+        <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
+        <datalist id="oldPnOptions"></datalist>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <small class="form-label mb-0">预览内容：</small>
+        <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
+        <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
+    </div>
+    <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
+    <script>
+    const brandMap = {
+        'AOC线缆': ['HG GENUINE', 'INNOLIGHT', 'Hisense', 'WTD'],
+        '光模块': ['HG GENUINE', 'INNOLIGHT', 'Hisense', 'Huawei', 'Finisar', 'WTD'],
+        '内存': ['Samsung', 'Hynix', 'Micron'],
+        '硬盘': ['Seagate', 'Western Digital', 'Intel', 'Samsung', 'Micron', 'KIOXIA', 'Solidigm'],
+        'CPU': ['Intel']
+    };
 
-  <div class="form-group my-3">
-    <label class="form-label d-flex justify-content-between" for="newSN">
-      <span class="text-danger fw-bold">新件SN：</span><small id="countNewSN" class="text-muted">字符数：0</small>
-    </label>
-    <input id="newSN" type="text" class="form-control" placeholder="">
-  </div>
+    const pnDataMap = {
+        '光模块': {
+            'HG GENUINE': ['MTRS-01X11-G', 'MQD-12F1C', 'MQD-56F2C', 'MTRQ-4S101'],
+            'INNOLIGHT': ['T-OL8CNT-N00', 'T-DQ8FNS-N01', 'T-DQ8FNS-N00', 'TR-FC13T-N00', 'TR-ZC13T-N00', 'T-DQ4CNT-N00', 'TR-FC13R-N00'],
+            'WTD': ['RTXM500-410', 'RTXM420-431', 'RTXM500-560', 'RTXM600-230', 'OEO-M100-73-13-Q28', 'OEO-M100-62-13-Q28', 'RTXM228-551', 'RTXM228-401', 'RTXM290-806', 'RTXM420-550'],
+            'Finisar': ['FTCD8613E1PCM', 'FTLX8574D3BCL', 'FTCD8613E2PCM-BY', 'FTCE4717E1PCB-BY', 'FTLX1475D3BCL'],
+            'Huawei': ['OM3680SX200', 'OM3660FX102'],
+            'Hisense': ['LMQ8811-PC+', 'LMS3821L-PCS', 'LTF8502-BC+', 'LMS3826-PC+', 'LTA1328-PC+'],
+            'Crealights': ['B5CLOS800SR8'],
+            'H3C': ['SFP-XG-LX-SM1310']
+        },
+        'AOC线缆': {
+            'HG GENUINE': ['ATRP-B005', 'ATRP-B007', 'ATRP-B010', 'ATRP-B020'],
+            'INNOLIGHT': ['C-PD2FNM005-N00', 'C-PD2FNM007-N00', 'C-PD2FNM010-N00'],
+            'Hisense': ['DMM8211-DC05', 'DMM8211-DC07', 'DMM8211-DC10', 'DMM8211-DC20'],
+            'WTD': ['RTXM520-105', 'RTXM520-107', 'RTXM520-110', 'RTXM520-120', 'RTXM500-905', 'RTXM500-910']
+        }
+    };
 
-<div class="form-group my-3">
-  <label class="form-label d-flex justify-content-between" for="newPN">
-    <span class="text-danger fw-bold">新件PN：</span><span id="checkNewPN" class="text-success"></span><small id="countNewPN" class="text-muted">字符数：0</small>
-  </label>
-  <input id="newPN" list="newPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
-  <datalist id="newPnOptions"></datalist>
-</div>
+    const orderNo = document.getElementById('orderNo');
+    const typeSelect = document.getElementById('type');
+    const switchLocation = document.getElementById('switchLocation');
+    const portNo = document.getElementById('portNo');
+    const serverSN = document.getElementById('serverSN');
+    const serverSNRow = document.getElementById('serverSNRow');
+    const switchInfoRow = document.getElementById('switchInfoRow');
 
+    const newBrand = document.getElementById('newBrand');
+    const oldBrand = document.getElementById('oldBrand');
+    const newPN = document.getElementById('newPN');
+    const oldPN = document.getElementById('oldPN');
+    const newSN = document.getElementById('newSN');
+    const oldSN = document.getElementById('oldSN');
 
+    const newPnOptions = document.getElementById('newPnOptions');
+    const oldPnOptions = document.getElementById('oldPnOptions');
 
-  <div class="form-group my-3">
-    <label class="form-label d-flex justify-content-between" for="oldSN">
-      <span class="text-secondary fw-bold">旧件SN：</span><small id="countOldSN" class="text-muted">字符数：0</small>
-    </label>
-    <input id="oldSN" type="text" class="form-control" placeholder="">
-  </div>
+    const countNewPN = document.getElementById('countNewPN');
+    const countNewSN = document.getElementById('countNewSN');
+    const countOldPN = document.getElementById('countOldPN');
+    const countOldSN = document.getElementById('countOldSN');
+    const checkNewPN = document.getElementById('checkNewPN');
+    const checkOldPN = document.getElementById('checkOldPN');
+    const preview = document.getElementById('preview');
+    const copyBtn = document.getElementById('copyBtn');
 
-<div class="form-group my-3">
-  <label class="form-label d-flex justify-content-between" for="oldPN">
-    <span class="text-secondary fw-bold">旧件PN：</span><span id="checkOldPN" class="text-success"></span><small id="countOldPN" class="text-muted">字符数：0</small>
-  </label>
-  <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
-  <datalist id="oldPnOptions"></datalist>
-</div>
-  <div class="d-flex justify-content-between align-items-center mb-1">
-    <small class="form-label mb-0">预览内容：</small>
-    <!-- <button id="copyBtn" class="btn btn-outline-primary"><i class="bi bi-copy pe-1"></i>复制</button> -->
-    <div class="btn-group" role="group" aria-label="Basic example">
-  <button id="copyBtn" class="btn btn-outline-primary"><i class="bi bi-copy pe-1"></i>复制</button>
-  <button class="btn btn-success" onclick="sendToFeishu()">发送到飞书</button>
-</div>
-  </div>
-  <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
-
-<script>
-const brandMap = {
-  'AOC线缆': ['HG GENUINE', 'INNOLIGHT', 'Hisense', 'WTD'],
-  '光模块': ['HG GENUINE', 'INNOLIGHT', 'Hisense', 'Huawei', 'Finisar', 'WTD'],
-  '内存': ['Samsung', 'Hynix', 'Micron'],
-  '硬盘': ['Seagate', 'Western Digital', 'Intel', 'Samsung', 'Micron', 'KIOXIA', 'Solidigm'],
-  'CPU': ['Intel']
-};
-
-const pnDataMap = {
-  '光模块': {
-    'HG GENUINE': ['MTRS-01X11-G', 'MQD-12F1C', 'MQD-56F2C', 'MTRQ-4S101'],
-    'INNOLIGHT': ['T-OL8CNT-N00', 'T-DQ8FNS-N01', 'T-DQ8FNS-N00', 'TR-FC13T-N00', 'TR-ZC13T-N00', 'T-DQ4CNT-N00', 'TR-FC13R-N00'],
-    'WTD': ['RTXM500-410', 'RTXM420-431', 'RTXM500-560', 'RTXM600-230', 'OEO-M100-73-13-Q28', 'OEO-M100-62-13-Q28', 'RTXM228-551', 'RTXM228-401', 'RTXM290-806', 'RTXM420-550'],
-    'Finisar': ['FTCD8613E1PCM', 'FTLX8574D3BCL', 'FTCD8613E2PCM-BY', 'FTCE4717E1PCB-BY', 'FTLX1475D3BCL'],
-    'Huawei': ['OM3680SX200', 'OM3660FX102'],
-    'Hisense': ['LMQ8811-PC+', 'LMS3821L-PCS', 'LTF8502-BC+', 'LMS3826-PC+', 'LTA1328-PC+'],
-    'Crealights': ['B5CLOS800SR8'],
-    'H3C': ['SFP-XG-LX-SM1310']
-  },
-  'AOC线缆': {
-    'HG GENUINE': ['ATRP-B005', 'ATRP-B007', 'ATRP-B010', 'ATRP-B020'],
-    'INNOLIGHT': ['C-PD2FNM005-N00', 'C-PD2FNM007-N00', 'C-PD2FNM010-N00'],
-    'Hisense': ['DMM8211-DC05', 'DMM8211-DC07', 'DMM8211-DC10', 'DMM8211-DC20'],
-    'WTD': ['RTXM520-105', 'RTXM520-107', 'RTXM520-110', 'RTXM520-120', 'RTXM500-905', 'RTXM500-910']
-  }
-};
-
-const orderNo = document.getElementById('orderNo');
-const typeSelect = document.getElementById('type');
-const switchLocation = document.getElementById('switchLocation');
-const portNo = document.getElementById('portNo');
-const serverSN = document.getElementById('serverSN');
-const serverSNRow = document.getElementById('serverSNRow');
-const switchInfoRow = document.getElementById('switchInfoRow');
-
-const newBrand = document.getElementById('newBrand');
-const oldBrand = document.getElementById('oldBrand');
-const newPN = document.getElementById('newPN');
-const oldPN = document.getElementById('oldPN');
-const newSN = document.getElementById('newSN');
-const oldSN = document.getElementById('oldSN');
-
-const newPnOptions = document.getElementById('newPnOptions');
-const oldPnOptions = document.getElementById('oldPnOptions');
-
-const countNewPN = document.getElementById('countNewPN');
-const countNewSN = document.getElementById('countNewSN');
-const countOldPN = document.getElementById('countOldPN');
-const countOldSN = document.getElementById('countOldSN');
-const checkNewPN = document.getElementById('checkNewPN');
-const checkOldPN = document.getElementById('checkOldPN');
-const preview = document.getElementById('preview');
-const copyBtn = document.getElementById('copyBtn');
-
-function showToast(msg, type = 'primary') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `toast align-items-center text-bg-${type} border-0 show my-2`;
-  toast.role = 'alert';
-  toast.innerHTML = `
+    function showToast(msg, type = 'primary') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-bg-${type} border-0 show my-2`;
+        toast.role = 'alert';
+        toast.innerHTML = `
     <div class="d-flex">
       <div class="toast-body">${msg}</div>
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
     </div>`;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 1200);
-}
-
-function updateBrandOptions(type) {
-  const brands = brandMap[type];
-  const section = document.getElementById('brandSection');
-  if (brands) {
-    newBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
-    oldBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
-    section.classList.remove('d-none');
-  } else {
-    newBrand.innerHTML = '';
-    oldBrand.innerHTML = '';
-    section.classList.add('d-none');
-  }
-  updatePnOptions(type, newBrand.value, newPnOptions);
-  updatePnOptions(type, oldBrand.value, oldPnOptions);
-}
-
-function updatePnOptions(type, brand, datalist) {
-  const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
-  datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
-}
-
-function formatSamsungMemoryPn(pn) {
-  const index = pn.indexOf('M');
-  return index !== -1 ? pn.slice(index) : pn;
-}
-
-
-
-function update() {
-  const type = typeSelect.value;
-  const order = orderNo.value.trim().match(/\d+/)?.[0] || '';
-  const isOptical = type === '光模块';
-  const switchLoc = switchLocation.value.trim();
-  const port = portNo.value.trim();
-  const server = serverSN.value.trim();
-  const brand1 = newBrand.value || '';
-  const brand2 = oldBrand.value || '';
-
-  // 🔧 关键：用 let 声明可修改的变量
-  let pn1 = newPN.value.trim();
-  let sn1 = newSN.value.trim();
-  let pn2 = oldPN.value.trim();
-  let sn2 = oldSN.value.trim();
-
-  // 清除提示
-  checkNewPN.textContent = '';
-  checkOldPN.textContent = '';
-  checkNewPN.className = '';
-  checkOldPN.className = '';
-
-  // Samsung 内存格式化逻辑
-  if (type === '内存') {
-    if (brand1 === 'Samsung' && pn1.length > 0) {
-      const formatted = formatSamsungMemoryPn(pn1);
-      pn1 = formatted;
-      newPN.value = formatted;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 1200);
     }
 
-    if (brand2 === 'Samsung' && pn2.length > 0) {
-      const formatted = formatSamsungMemoryPn(pn2);
-      pn2 = formatted;
-      oldPN.value = formatted;
-    }
-  }
-
-  // ✅ 字符数统计（必须在格式化之后）
-  countNewPN.textContent = `字符数：${pn1.length}`;
-  countNewSN.textContent = `字符数：${sn1.length}`;
-  countOldPN.textContent = `字符数：${pn2.length}`;
-  countOldSN.textContent = `字符数：${sn2.length}`;
-
-  // Samsung 格式校验提示
-  if (type === '内存') {
-    if (brand1 === 'Samsung' && pn1 && !pn1.startsWith('M')) {
-      checkNewPN.textContent = '请检查内存PN';
-      checkNewPN.className = 'text-danger me-2';
+    function updateBrandOptions(type) {
+        const brands = brandMap[type];
+        const section = document.getElementById('brandSection');
+        if (brands) {
+            newBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+            oldBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+            section.classList.remove('d-none');
+        } else {
+            newBrand.innerHTML = '';
+            oldBrand.innerHTML = '';
+            section.classList.add('d-none');
+        }
+        updatePnOptions(type, newBrand.value, newPnOptions);
+        updatePnOptions(type, oldBrand.value, oldPnOptions);
     }
 
-    if (brand2 === 'Samsung' && pn2 && !pn2.startsWith('M')) {
-      checkOldPN.textContent = '请检查内存PN';
-      checkOldPN.className = 'text-danger me-2';
+    function updatePnOptions(type, brand, datalist) {
+        const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
+        datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
     }
-  }
 
-  // PN 一致性检查（内存或硬盘）
-  if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
-    if (pn1 && pn2) {
-      if (pn1 === pn2) {
-        checkNewPN.textContent = 'PN一致';
-        checkOldPN.textContent = 'PN一致';
-        checkNewPN.className = 'text-success me-2';
-        checkOldPN.className = 'text-success me-2';
-      } else {
-        checkNewPN.textContent = 'PN不一致';
-        checkOldPN.textContent = 'PN不一致';
-        checkNewPN.className = 'text-danger me-2';
-        checkOldPN.className = 'text-danger me-2';
-      }
+    function formatSamsungMemoryPn(pn) {
+        const index = pn.indexOf('M');
+        return index !== -1 ? pn.slice(index) : pn;
     }
-  }
 
-  // 文本预览生成
-  const positionText = isOptical ? `${switchLoc} ${port}` : `服务器SN：${server}`;
 
-  const text = `上新下旧：更换「${type}」
+
+    function update() {
+        const type = typeSelect.value;
+        const order = orderNo.value.trim().match(/\d+/) ? . [0] || '';
+        const isOptical = type === '光模块';
+        const switchLoc = switchLocation.value.trim();
+        const port = portNo.value.trim();
+        const server = serverSN.value.trim();
+        const brand1 = newBrand.value || '';
+        const brand2 = oldBrand.value || '';
+
+        // 🔧 关键：用 let 声明可修改的变量
+        let pn1 = newPN.value.trim();
+        let sn1 = newSN.value.trim();
+        let pn2 = oldPN.value.trim();
+        let sn2 = oldSN.value.trim();
+
+        // 清除提示
+        checkNewPN.textContent = '';
+        checkOldPN.textContent = '';
+        checkNewPN.className = '';
+        checkOldPN.className = '';
+
+        // Samsung 内存格式化逻辑
+        if (type === '内存') {
+            if (brand1 === 'Samsung' && pn1.length > 0) {
+                const formatted = formatSamsungMemoryPn(pn1);
+                pn1 = formatted;
+                newPN.value = formatted;
+            }
+
+            if (brand2 === 'Samsung' && pn2.length > 0) {
+                const formatted = formatSamsungMemoryPn(pn2);
+                pn2 = formatted;
+                oldPN.value = formatted;
+            }
+        }
+
+        // ✅ 字符数统计（必须在格式化之后）
+        countNewPN.textContent = `字符数：${pn1.length}`;
+        countNewSN.textContent = `字符数：${sn1.length}`;
+        countOldPN.textContent = `字符数：${pn2.length}`;
+        countOldSN.textContent = `字符数：${sn2.length}`;
+
+        // Samsung 格式校验提示
+        if (type === '内存') {
+            if (brand1 === 'Samsung' && pn1 && !pn1.startsWith('M')) {
+                checkNewPN.textContent = '请检查内存PN';
+                checkNewPN.className = 'text-danger me-2';
+            }
+
+            if (brand2 === 'Samsung' && pn2 && !pn2.startsWith('M')) {
+                checkOldPN.textContent = '请检查内存PN';
+                checkOldPN.className = 'text-danger me-2';
+            }
+        }
+
+        // PN 一致性检查（内存或硬盘）
+        if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
+            if (pn1 && pn2) {
+                if (pn1 === pn2) {
+                    checkNewPN.textContent = 'PN一致';
+                    checkOldPN.textContent = 'PN一致';
+                    checkNewPN.className = 'text-success me-2';
+                    checkOldPN.className = 'text-success me-2';
+                } else {
+                    checkNewPN.textContent = 'PN不一致';
+                    checkOldPN.textContent = 'PN不一致';
+                    checkNewPN.className = 'text-danger me-2';
+                    checkOldPN.className = 'text-danger me-2';
+                }
+            }
+        }
+
+        // 文本预览生成
+        const positionText = isOptical ? `${switchLoc} ${port}` : `服务器SN：${server}`;
+
+        const text = `上新下旧：更换「${type}」
 单号：${order}
 ${isOptical ? '位置：' + positionText : positionText}
 新件品牌：${brand1}
@@ -292,91 +276,131 @@ ${isOptical ? '位置：' + positionText : positionText}
 旧件SN：${sn2}
 旧件PN：${pn2}`;
 
-  preview.textContent = text;
-  hljs.highlightElement(preview);
-}
-
-
-// 注册事件
-typeSelect.addEventListener('change', () => {
-  const type = typeSelect.value;
-  const isOptical = type === '光模块';
-  serverSNRow.classList.toggle('d-none', isOptical);
-  switchInfoRow.classList.toggle('d-none', !isOptical);
-  updateBrandOptions(type);
-  update();
-});
-
-[newBrand, oldBrand].forEach((select, index) => {
-  select.addEventListener('change', () => {
-    const type = typeSelect.value;
-    const datalist = index === 0 ? newPnOptions : oldPnOptions;
-    updatePnOptions(type, select.value, datalist);
-    update();
-  });
-});
-
-[
-  orderNo, serverSN, switchLocation, portNo,
-  newPN, newSN, oldPN, oldSN
-].forEach(el => el.addEventListener('input', update));
-
-copyBtn.addEventListener('click', () => {
-  const text = preview.innerText.trim();
-  if (!text || text.includes('请开始输入')) {
-    showToast('请先输入完整内容', 'warning');
-    return;
-  }
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('已复制到剪贴板');
-  }).catch(() => {
-    showToast('复制失败，请手动复制', 'danger');
-  });
-});
-
-function sendToFeishu() {
-  const preview = document.getElementById('preview');
-  const text = preview?.textContent?.trim();
-
-  if (!text) {
-    alert('预览内容为空，无法发送');
-    return;
-  }
-
-  fetch('https://test.jsjs.net', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      text
-      // 如果你不需要 token 验证，可以不发 token
-    }),
-  })
-  .then(async res => {
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error(errText || '网络错误');
+        preview.textContent = text;
+        hljs.highlightElement(preview);
     }
-    return res.json();
-  })
-  .then(data => {
-    alert('已发送到飞书 ✅');
-    console.log(data);
-  })
-  .catch(err => {
-    alert('发送失败 ❌');
-    console.error(err);
-  });
-}
 
 
-// 初始化
-updateBrandOptions(typeSelect.value);
-update();
-</script>
+    // 注册事件
+    typeSelect.addEventListener('change', () => {
+        const type = typeSelect.value;
+        const isOptical = type === '光模块';
+        serverSNRow.classList.toggle('d-none', isOptical);
+        switchInfoRow.classList.toggle('d-none', !isOptical);
+        updateBrandOptions(type);
+        update();
+    });
+
+    [newBrand, oldBrand].forEach((select, index) => {
+        select.addEventListener('change', () => {
+            const type = typeSelect.value;
+            const datalist = index === 0 ? newPnOptions : oldPnOptions;
+            updatePnOptions(type, select.value, datalist);
+            update();
+        });
+    });
+
+    [
+        orderNo, serverSN, switchLocation, portNo,
+        newPN, newSN, oldPN, oldSN
+    ].forEach(el => el.addEventListener('input', update));
+
+    copyBtn.addEventListener('click', () => {
+        const text = preview.innerText.trim();
+        if (!text || text.includes('请开始输入')) {
+            showToast('请先输入完整内容', 'warning');
+            return;
+        }
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('已复制到剪贴板');
+        }).catch(() => {
+            showToast('复制失败，请手动复制', 'danger');
+        });
+    });
+
+    function sendToFeishu() {
+        // 获取各字段
+        const type = typeSelect.value;
+        const order = orderNo.value.trim().match(/\d+/) ? . [0] || '';
+        const isOptical = type === '光模块';
+        const switchLoc = switchLocation.value.trim();
+        const port = portNo.value.trim();
+        const server = serverSN.value.trim();
+        const brand1 = newBrand.value || '';
+        const brand2 = oldBrand.value || '';
+        let pn1 = newPN.value.trim();
+        let sn1 = newSN.value.trim();
+        let pn2 = oldPN.value.trim();
+        let sn2 = oldSN.value.trim();
+
+        // 组装富文本内容
+        const contentArr = [
+            [ // 第一行
+                { tag: 'text', text: `上新下旧：更换「${type}」` }
+            ],
+            [ // 单号行，单号为超链接
+                { tag: 'text', text: '单号：' },
+                { tag: 'a', text: order, href: `https://pda.jsjs.net/preview?id=${order}` }
+            ],
+            [ // 服务器SN或位置
+                { tag: 'text', text: isOptical ? `位置：${switchLoc} ${port}` : `服务器SN：${server}` }
+            ],
+            [{ tag: 'text', text: `新件品牌：${brand1}` }],
+            [{ tag: 'text', text: `新件SN：${sn1}` }],
+            [{ tag: 'text', text: `新件PN：${pn1}` }],
+            [{ tag: 'text', text: `旧件品牌：${brand2}` }],
+            [{ tag: 'text', text: `旧件SN：${sn2}` }],
+            [{ tag: 'text', text: `旧件PN：${pn2}` }]
+        ];
+
+        const feishuPost = {
+            zh_cn: {
+                title: '配件更换通知',
+                content: contentArr
+            }
+        };
+
+        fetch('https://test.jsjs.net', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ feishuPost }),
+            })
+            .then(async res => {
+                if (!res.ok) {
+                    const errText = await res.text();
+                    throw new Error(errText || '网络错误');
+                }
+                return res.json();
+            })
+            .then(data => {
+                showToast('已发送到飞书 ✅', 'success');
+                console.log(data);
+            })
+            .catch(err => {
+                showToast('发送失败 ❌', 'danger');
+                console.error(err);
+            });
+    }
 
 
+    // 初始化
+    updateBrandOptions(typeSelect.value);
+    update();
+
+    // 在脚本部分添加如下事件绑定
+    orderNo.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+    });
+    orderNo.addEventListener('paste', function(e) {
+        // 延迟处理，确保粘贴内容已进入input
+        setTimeout(() => {
+            const val = this.value.match(/(\d+)(?!.*\d)/);
+            this.value = val ? val[0] : '';
+        }, 0);
+    });
+    </script>
 </body>
 
 </html>
