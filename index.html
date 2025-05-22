@@ -22,6 +22,7 @@
     <div class="col">
       <label class="form-label fw-bold" for="orderNo">单号：</label>
       <input id="orderNo" type="text" class="form-control" placeholder="请输入单号">
+      <div id="orderNoDisplay" class="text-muted mt-1"></div>
     </div>
     <div class="col text-end">
       <label class="form-label fw-bold" for="type">配件类型：</label>
@@ -159,10 +160,7 @@ const checkOldPN = document.getElementById('checkOldPN');
 const preview = document.getElementById('preview');
 const copyBtn = document.getElementById('copyBtn');
 
-// 在单号输入框下方显示提取的数字单号
-const orderNoDisplay = document.createElement('div');
-orderNoDisplay.className = 'text-muted mt-1';
-orderNo.parentNode.appendChild(orderNoDisplay);
+const orderNoDisplay = document.getElementById('orderNoDisplay');
 
 orderNo.addEventListener('input', function() {
   const val = orderNo.value.trim();
