@@ -317,8 +317,13 @@ typeSelect.addEventListener('change', () => {
 ].forEach(el => el.addEventListener('input', update));
 
 copyBtn.addEventListener('click', () => {
-  const text = preview.innerText.trim();
-  navigator.clipboard.writeText(text).then(() => {
+  const orderInput = orderNo.value.trim();
+  const orderNum = orderInput.match(/https?:\/\/[^\s]+/)?.[0] || '';
+  if (!orderNum) {
+    showToast('链接中未找到单号数字', 'warning');
+    return;
+  }
+  navigator.clipboard.writeText(orderNum).then(() => {
     showToast('已复制到剪贴板');
   }).catch(() => {
     showToast('复制失败，请手动复制', 'danger');
@@ -327,29 +332,18 @@ copyBtn.addEventListener('click', () => {
 
 function sendToFeishu() {
   const type = typeSelect.value;
-  let orderInput = orderNo.value.trim();
+  const orderInput = orderNo.value.trim();
 
-  // 判断是url还是纯数字
-  let urlMatch = orderInput.match(/https?:\/\/[^\s]+/);
-  let orderNum = '';
-  let orderUrl = '';
-
-  if (urlMatch) {
-    // 粘贴的是完整url
-    orderUrl = urlMatch[0];
-    orderNum = orderUrl.match(/(\\d+)(?!.*\\d)/)?.[0] || '';
-  } else if (/^\\d+$/.test(orderInput)) {
-    // 只输入了数字
-    orderNum = orderInput;
-    // 你可以自定义拼接url规则
-    orderUrl = `https://pda.jsjs.net/preview?id=${orderNum}`;
-  } else {
-    showToast('请输入完整的单号链接或数字', 'warning');
+  // 检查是否为完整url
+  const urlMatch = orderInput.match(/https?:\/\/[^\s]+/);
+  if (!urlMatch) {
+    showToast('请粘贴完整的单号链接', 'warning');
     return;
   }
-
+  const orderUrl = urlMatch[0];
+  const orderNum = orderUrl.match(/(\d+)(?!.*\d)/)?.[0] || '';
   if (!orderNum) {
-    showToast('未找到单号数字', 'warning');
+    showToast('链接中未找到单号数字', 'warning');
     return;
   }
 
@@ -364,7 +358,6 @@ function sendToFeishu() {
   let pn2 = oldPN.value.trim();
   let sn2 = oldSN.value.trim();
 
-  // 组装富文本内容
   const contentArr = [
     [ { tag: 'text', text: `上新下旧：更换「${type}」` } ],
     [ { tag: 'text', text: '单号：' }, { tag: 'a', text: orderNum, href: orderUrl } ],
@@ -412,18 +405,6 @@ function sendToFeishu() {
 // 初始化
 updateBrandOptions(typeSelect.value);
 update();
-
-// 在脚本部分添加如下事件绑定
-orderNo.addEventListener('input', function() {
-  this.value = this.value.replace(/\D/g, '');
-});
-orderNo.addEventListener('paste', function(e) {
-  // 延迟处理，确保粘贴内容已进入input
-  setTimeout(() => {
-    const val = this.value.match(/(\d+)(?!.*\d)/);
-    this.value = val ? val[0] : '';
-  }, 0);
-});
 </script>
 
 
