@@ -317,13 +317,8 @@ typeSelect.addEventListener('change', () => {
 ].forEach(el => el.addEventListener('input', update));
 
 copyBtn.addEventListener('click', () => {
-  const orderInput = orderNo.value.trim();
-  const orderNum = orderInput.match(/(\d+)(?!.*\d)/)?.[0] || '';
-  if (!orderNum) {
-    showToast('链接中未找到单号数字', 'warning');
-    return;
-  }
-  navigator.clipboard.writeText(orderNum).then(() => {
+  const text = preview.innerText.trim();
+  navigator.clipboard.writeText(text).then(() => {
     showToast('已复制到剪贴板');
   }).catch(() => {
     showToast('复制失败，请手动复制', 'danger');
@@ -335,7 +330,7 @@ function sendToFeishu() {
   const orderInput = orderNo.value.trim();
 
   // 检查是否为完整url
-  const urlMatch = orderInput.match(/https?:\/\/[^\s]+/);
+  const urlMatch = orderInput.match(/https?:\/\/[\S]+/);
   if (!urlMatch) {
     showToast('请粘贴完整的单号链接', 'warning');
     return;
