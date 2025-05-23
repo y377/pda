@@ -100,8 +100,9 @@
 </div>
   <div class="d-flex justify-content-between align-items-center mb-1">
     <small class="form-label mb-0">预览内容：</small>
-    <button id="copyBtn" class="btn btn-primary"><i class="bi bi-copy pe-1"></i>复制</button>
-    <button class="btn btn-success" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>发送到飞书</button>
+    <button id="copyBtn" class="btn btn-light"><i class="bi bi-copy pe-1"></i>一键复制</button>
+    <button class="btn btn-light" onclick="sendApplyNotify()"><i class="bi bi-megaphone-fill pe-1"></i>申领通知</button>
+    <button class="btn btn-light" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>替换通知</button>
   </div>
   <pre class="rounded"><code id="preview" class="language-plaintext"></code></pre>
 
@@ -408,6 +409,52 @@ function sendToFeishu() {
   });
 }
 
+// 新增申领通知函数
+function sendApplyNotify() {
+  const orderInput = orderNo.value.trim();
+  const urlMatch = orderInput.match(/https?:\/\/[\S]+/);
+  if (!urlMatch) {
+    showToast('请粘贴完整的单号链接', 'warning');
+    return;
+  }
+  const orderUrl = urlMatch[0];
+  const orderNum = orderUrl.match(/(\d+)(?!.*\d)/)?.[0] || '';
+  if (!orderNum) {
+    showToast('链接中未找到单号数字', 'warning');
+    return;
+  }
+  const brand2 = oldBrand.value || '';
+  let pn2 = oldPN.value.trim();
+  let sn2 = oldSN.value.trim();
+
+  fetch('https://test.jsjs.net', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'apply',
+      orderNum,
+      orderUrl,
+      brand2,
+      sn2,
+      pn2
+    }),
+  })
+  .then(async res => {
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText || '网络错误');
+    }
+    return res.json();
+  })
+  .then(data => {
+    showToast('申领通知已发送 ✅', 'success');
+    console.log(data);
+  })
+  .catch(err => {
+    showToast('申领通知发送失败 ❌', 'danger');
+    console.error(err);
+  });
+}
 
 // 初始化
 updateBrandOptions(typeSelect.value);
