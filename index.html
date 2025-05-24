@@ -198,9 +198,83 @@ function updateBrandOptions(type) {
   updatePnOptions(type, oldBrand.value, oldPnOptions);
 }
 
+// 新增：硬盘PN列表
+const diskPnList = [
+  { brand: "Intel", pn: "SSDPF2KX076T1" },
+  { brand: "Intel", pn: "SSDPF2KX038T1" },
+  { brand: "KIOXIA", pn: "KCD81RUG3T84" },
+  { brand: "KIOXIA", pn: "KCD81RUG7T68" },
+  { brand: "KIOXIA", pn: "KCD81RUG1T92" },
+  { brand: "Samsung", pn: "MZQL21T9HCJR-00B7C" },
+  { brand: "Seagate", pn: "ST20000NM007D" },
+  { brand: "Seagate", pn: "ST8000NM017B" },
+  { brand: "Union Memory", pn: "UP2A63T8SD004LX" },
+  { brand: "Western Digital", pn: "WUH722020BLE604" },
+  { brand: "Western Digital", pn: "HUS728T8TALE6L4" }
+];
+
+// 生成硬盘PN下拉选项（只显示当前品牌的PN）
+function renderDiskPnOptions(datalist, brand) {
+  const list = diskPnList.filter(item => item.brand === brand);
+  datalist.innerHTML = list.map(item => `<option value="${item.pn}">${item.pn}</option>`).join('');
+}
+
+// 新增：切换PN输入框为select或input
+function switchPnInput(isDisk) {
+  // 新件PN
+  const newPnParent = newPN.parentElement;
+  let newPnSelect = document.getElementById('newPNSelect');
+  if (isDisk) {
+    if (!newPnSelect) {
+      newPnSelect = document.createElement('select');
+      newPnSelect.id = 'newPNSelect';
+      newPnSelect.className = newPN.className;
+      newPnSelect.innerHTML = newPnOptions.innerHTML;
+      newPnSelect.addEventListener('change', update);
+      newPN.style.display = 'none';
+      newPnParent.appendChild(newPnSelect);
+    }
+    newPN.style.display = 'none';
+    newPnSelect.style.display = '';
+  } else {
+    if (newPnSelect) newPnSelect.style.display = 'none';
+    newPN.style.display = '';
+  }
+  // 旧件PN
+  const oldPnParent = oldPN.parentElement;
+  let oldPnSelect = document.getElementById('oldPNSelect');
+  if (isDisk) {
+    if (!oldPnSelect) {
+      oldPnSelect = document.createElement('select');
+      oldPnSelect.id = 'oldPNSelect';
+      oldPnSelect.className = oldPN.className;
+      oldPnSelect.innerHTML = oldPnOptions.innerHTML;
+      oldPnSelect.addEventListener('change', update);
+      oldPN.style.display = 'none';
+      oldPnParent.appendChild(oldPnSelect);
+    }
+    oldPN.style.display = 'none';
+    oldPnSelect.style.display = '';
+  } else {
+    if (oldPnSelect) oldPnSelect.style.display = 'none';
+    oldPN.style.display = '';
+  }
+}
+
+// 修改updatePnOptions逻辑，硬盘时用diskPnList并按品牌筛选
 function updatePnOptions(type, brand, datalist) {
-  const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
-  datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
+  if (type === '硬盘') {
+    renderDiskPnOptions(datalist, brand);
+    // 同步select
+    const isNew = datalist === newPnOptions;
+    const select = document.getElementById(isNew ? 'newPNSelect' : 'oldPNSelect');
+    if (select) {
+      select.innerHTML = datalist.innerHTML;
+    }
+  } else {
+    const list = (pnDataMap[type] && pnDataMap[type][brand]) || [];
+    datalist.innerHTML = list.map(pn => `<option value="${pn}">`).join('');
+  }
 }
 
 function formatSamsungMemoryPn(pn) {
@@ -221,9 +295,9 @@ function update() {
   const brand2 = oldBrand.value || '';
 
   // 🔧 关键：用 let 声明可修改的变量
-  let pn1 = newPN.value.trim();
+  let pn1 = type === '硬盘' ? (document.getElementById('newPNSelect')?.value || '') : newPN.value.trim();
   let sn1 = newSN.value.trim();
-  let pn2 = oldPN.value.trim();
+  let pn2 = type === '硬盘' ? (document.getElementById('oldPNSelect')?.value || '') : oldPN.value.trim();
   let sn2 = oldSN.value.trim();
 
   // 清除提示
@@ -309,6 +383,7 @@ typeSelect.addEventListener('change', () => {
   switchInfoRow.classList.toggle('d-none', !isOptical);
   updateBrandOptions(type);
   update();
+  switchPnInput(type === '硬盘');
 });
 
 [newBrand, oldBrand].forEach((select, index) => {
@@ -357,9 +432,9 @@ function sendToFeishu() {
   const server = serverSN.value.trim();
   const brand1 = newBrand.value || '';
   const brand2 = oldBrand.value || '';
-  let pn1 = newPN.value.trim();
+  let pn1 = type === '硬盘' ? (document.getElementById('newPNSelect')?.value || '') : newPN.value.trim();
   let sn1 = newSN.value.trim();
-  let pn2 = oldPN.value.trim();
+  let pn2 = type === '硬盘' ? (document.getElementById('oldPNSelect')?.value || '') : oldPN.value.trim();
   let sn2 = oldSN.value.trim();
 
   const contentArr = [
