@@ -15,14 +15,13 @@
 </head>
 
 <body class="container mb-5">
-  <h5 class="text-center pt-2"><i class="bi bi-qr-code-scan px-2"></i>配件扫码录入</h5>
+  <h5 class="text-center pt-3"><i class="bi bi-qr-code-scan px-2"></i>配件扫码录入</h5>
   <div id="toastContainer" class="position-fixed top-0 start-50 translate-middle-x" style="z-index: 9999;"></div>
 
   <div class="row my-3">
     <div class="col">
-      <label class="form-label fw-bold" for="orderNo">单号：</label>
+      <label class="form-label fw-bold" for="orderNo">单号：<span id="orderNoDisplay" class="text-primary font-monospace"></span></label>
       <input id="orderNo" type="text" class="form-control" placeholder="请粘贴单号">
-      <div id="orderNoDisplay" class="text-muted mt-1"></div>
     </div>
     <div class="col text-end">
       <label class="form-label fw-bold" for="type">配件类型：</label>
@@ -99,7 +98,7 @@
   <input id="oldPN" list="oldPnOptions" type="text" class="form-control" placeholder="" autocorrect="off">
   <datalist id="oldPnOptions"></datalist>
 </div>
-  <div class="d-flex justify-content-between align-items-center mb-1">
+  <div class="d-flex justify-content-between align-items-center my-4">
     <button id="copyBtn" class="btn btn-danger"><i class="bi bi-copy pe-1"></i>一键复制</button>
     <button class="btn btn-success" onclick="sendApplyNotify()"><i class="bi bi-megaphone-fill pe-1"></i>申领通知</button>
     <button class="btn btn-primary" onclick="sendToFeishu()"><i class="bi bi-send pe-1"></i>替换通知</button>
@@ -166,7 +165,7 @@ const orderNoDisplay = document.getElementById('orderNoDisplay');
 orderNo.addEventListener('input', function() {
   const val = orderNo.value.trim();
   const num = val.match(/(\d+)(?!.*\d)/)?.[0] || '';
-  orderNoDisplay.textContent = num ? `单号识别：${num}` : '';
+  orderNoDisplay.textContent = num ? `${num}` : '';//单号识别：${num}
 });
 
 function showToast(msg, type = 'primary') {
