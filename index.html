@@ -21,12 +21,13 @@
   <div class="row my-3">
     <div class="col">
       <label class="form-label fw-bold" for="orderNo">单号：</label>
-      <input id="orderNo" type="text" class="form-control" placeholder="请输入单号">
+      <input id="orderNo" type="text" class="form-control" placeholder="请粘贴单号">
       <div id="orderNoDisplay" class="text-muted mt-1"></div>
     </div>
     <div class="col text-end">
       <label class="form-label fw-bold" for="type">配件类型：</label>
       <select id="type" class="form-select">
+        <option selected>请选择</option>
         <option value="CPU">CPU</option>
         <option value="内存">内存</option>
         <option value="硬盘">硬盘</option>
@@ -186,8 +187,8 @@ function updateBrandOptions(type) {
   const brands = brandMap[type];
   const section = document.getElementById('brandSection');
   if (brands) {
-    newBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
-    oldBrand.innerHTML = brands.map(b => `<option value="${b}">${b}</option>`).join('');
+    newBrand.innerHTML = '<option selected>请选择</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
+    oldBrand.innerHTML = '<option selected>请选择</option>' + brands.map(b => `<option value="${b}">${b}</option>`).join('');
     section.classList.remove('d-none');
   } else {
     newBrand.innerHTML = '';
@@ -200,23 +201,24 @@ function updateBrandOptions(type) {
 
 // 新增：硬盘PN列表
 const diskPnList = [
-  { brand: "Intel", pn: "SSDPF2KX076T1" },
-  { brand: "Intel", pn: "SSDPF2KX038T1" },
-  { brand: "KIOXIA", pn: "KCD81RUG3T84" },
-  { brand: "KIOXIA", pn: "KCD81RUG7T68" },
-  { brand: "KIOXIA", pn: "KCD81RUG1T92" },
-  { brand: "Samsung", pn: "MZQL21T9HCJR-00B7C" },
-  { brand: "Seagate", pn: "ST20000NM007D" },
-  { brand: "Seagate", pn: "ST8000NM017B" },
-  { brand: "Union Memory", pn: "UP2A63T8SD004LX" },
-  { brand: "Western Digital", pn: "WUH722020BLE604" },
-  { brand: "Western Digital", pn: "HUS728T8TALE6L4" }
+  { brand: "Intel", pn: "SSDPF2KX076T1", Type: "NVMe/7.68TB" },
+  { brand: "Intel", pn: "SSDPF2KX038T1", Type: "NVMe/3.84TB" },
+  { brand: "KIOXIA", pn: "KCD81RUG3T84", Type: "NVMe/3.84TB" },
+  { brand: "KIOXIA", pn: "KCD81RUG7T68", Type: "NVMe/7.68TB" },
+  { brand: "KIOXIA", pn: "KCD81RUG1T92", Type: "NVMe/1.92TB" },
+  { brand: "Samsung", pn: "MZQL21T9HCJR-00B7C", Type: "NVMe/1.92TB" },
+  { brand: "Samsung", pn: "MZQL23T8HCLS-00B7C", Type: "NVMe/3.84TB" },
+  { brand: "Seagate", pn: "ST20000NM007D", Type: "HDD/20TB" },
+  { brand: "Seagate", pn: "ST8000NM017B", Type: "HDD/8TB" },
+  { brand: "Union Memory", pn: "UP2A63T8SD004LX", Type: "NVMe/3.84TB" },
+  { brand: "Western Digital", pn: "WUH722020BLE604", Type: "HDD/20TB" },
+  { brand: "Western Digital", pn: "HUS728T8TALE6L4", Type: "HDD/8TB" }
 ];
 
-// 生成硬盘PN下拉选项（只显示当前品牌的PN）
+// 生成硬盘PN下拉选项（只显示当前品牌的PN，首项为请选择硬盘PN，显示pn+type）
 function renderDiskPnOptions(datalist, brand) {
   const list = diskPnList.filter(item => item.brand === brand);
-  datalist.innerHTML = list.map(item => `<option value="${item.pn}">${item.pn}</option>`).join('');
+  datalist.innerHTML = `<option value="">请选择硬盘PN</option>` + list.map(item => `<option value="${item.pn}">${item.pn}【${item.Type}】</option>`).join('');
 }
 
 // 新增：切换PN输入框为select或input
@@ -294,7 +296,6 @@ function update() {
   const brand1 = newBrand.value || '';
   const brand2 = oldBrand.value || '';
 
-  // 🔧 关键：用 let 声明可修改的变量
   let pn1 = type === '硬盘' ? (document.getElementById('newPNSelect')?.value || '') : newPN.value.trim();
   let sn1 = newSN.value.trim();
   let pn2 = type === '硬盘' ? (document.getElementById('oldPNSelect')?.value || '') : oldPN.value.trim();
@@ -313,7 +314,6 @@ function update() {
       pn1 = formatted;
       newPN.value = formatted;
     }
-
     if (brand2 === 'Samsung' && pn2.length > 0) {
       const formatted = formatSamsungMemoryPn(pn2);
       pn2 = formatted;
@@ -333,16 +333,15 @@ function update() {
       checkNewPN.textContent = '请检查内存PN';
       checkNewPN.className = 'text-danger me-2';
     }
-
     if (brand2 === 'Samsung' && pn2 && !pn2.startsWith('M')) {
       checkOldPN.textContent = '请检查内存PN';
       checkOldPN.className = 'text-danger me-2';
     }
   }
 
-  // PN 一致性检查（内存或硬盘）
-  if ((type === '内存' || type === '硬盘') && brand1 && brand2 && brand1 === brand2) {
-    if (pn1 && pn2) {
+  // 优化：只要新旧PN都已选择且不为"请选择硬盘PN"时就校验一致性
+  if ((type === '内存' || type === '硬盘')) {
+    if (pn1 && pn2 && pn1 !== '' && pn2 !== '' && pn1 !== '请选择硬盘PN' && pn2 !== '请选择硬盘PN') {
       if (pn1 === pn2) {
         checkNewPN.textContent = 'PN一致';
         checkOldPN.textContent = 'PN一致';
@@ -354,6 +353,11 @@ function update() {
         checkNewPN.className = 'text-danger me-2';
         checkOldPN.className = 'text-danger me-2';
       }
+    } else {
+      checkNewPN.textContent = '';
+      checkOldPN.textContent = '';
+      checkNewPN.className = '';
+      checkOldPN.className = '';
     }
   }
 
